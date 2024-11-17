@@ -1,0 +1,41 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "G:\\Intern\\Invoice_\\Invoice\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{AB225477-78F5-4273-90DD-3BDED2F2E9EE}|Invoice.csproj|g:\\intern\\invoice_\\invoice\\views\\invoice\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{AB225477-78F5-4273-90DD-3BDED2F2E9EE}|Invoice.csproj|solutionrelative:views\\invoice\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "G:\\Intern\\Invoice_\\Invoice\\Views\\Invoice\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Invoice\\Index.cshtml",
+              "ToolTip": "G:\\Intern\\Invoice_\\Invoice\\Views\\Invoice\\Index.cshtml",
+              "RelativeToolTip": "Views\\Invoice\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-11-17T06:03:05.32Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
