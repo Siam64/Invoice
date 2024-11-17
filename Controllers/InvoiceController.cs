@@ -16,7 +16,10 @@ namespace Invoice.Controllers
             return View();
         }
 
-        [Route("Create")]
+
+
+        
+        [HttpPost]
         public IActionResult Index(InvoiceVM model)
         {
             return View();

@@ -337,10 +337,28 @@
                     Customer_Id: $('#Customer_Id').val(),
                     PrintedBy: $('#PrintedBy').val(),
                     Date: $('#Date').val(),
-                    InvoiceItems: items
+                    InvoiceItems: items,
                 };
                 console.log(invoiceData);
+
+                $.ajax({
+                    url: '@Url.Action("Index", "Invoice")',
+                    type: 'POST',
+                    data: invoiceData,
+
+                    success: function () {
+                        alert("sent to controller");
+                    },
+
+                    Error: function () {
+                        alert("Failed");
+                    }
+                });
+
+
             });
+
+           
         });
     </script>
 }
