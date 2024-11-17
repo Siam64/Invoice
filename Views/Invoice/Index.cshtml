@@ -180,16 +180,16 @@
 
 
 @section Scripts{
-    <script>
-            let itemIndex = 0;
+        <script>
+            // Initialize arrays and variables
             let items = [];
 
             function addItem() {
                 // Get values from input fields
                 const description = document.querySelector('input[name="Description"]').value;
-                const quantity = document.querySelector('input[name="Quantity"]').value;
-                const unitPrice = document.querySelector('input[name="UnitPrice"]').value;
-                const discount = document.querySelector('input[name="Discount"]').value;
+                const quantity = parseFloat(document.querySelector('input[name="Quantity"]').value);
+                const unitPrice = parseFloat(document.querySelector('input[name="UnitPrice"]').value);
+                const discount = parseFloat(document.querySelector('input[name="Discount"]').value) || 0;
 
                 // Validate inputs
                 if (!description || !quantity || !unitPrice) {
@@ -197,41 +197,61 @@
                     return;
                 }
 
-                const totalPrice = calculateTotal(quantity, unitPrice, discount);
+                // Calculate total price for this item
+                const subtotal = quantity * unitPrice;
+                const discountAmount = (subtotal * discount) / 100;
+                const totalPrice = subtotal - discountAmount;
 
-                // Add item to array
-                items.push({
+                // Create new item object
+                const newItem = {
                     description,
-                    quantity: parseFloat(quantity),
-                    unitPrice: parseFloat(unitPrice),
-                    discount: parseFloat(discount) || 0,
+                    quantity,
+                    unitPrice,
+                    discount,
+                    subtotal,
+                    discountAmount,
                     totalPrice
-                });
+                };
 
-                // Add item to table
-                const newRow = `
-                    <tr id="row-${itemIndex}">
-                        <td>${description}</td>
-                        <td>${quantity}</td>
-                        <td>${discount}%</td>
-                        <td>${totalPrice.toFixed(2)}</td>
-                        <td>
-                            <button type="button" class="btn btn-danger btn-sm" onclick="removeTableItem(${itemIndex})">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
+                // Add to items array
+                items.push(newItem);
 
-                document.getElementById('items-container').insertAdjacentHTML('beforeend', newRow);
+                // Update the table
+                updateTable();
 
                 // Clear input fields
                 clearInputFields();
 
                 // Update totals
                 updateOrderSummary();
+            }
 
-                itemIndex++;
+            function updateTable() {
+                const tableBody = document.getElementById('items-container');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                items.forEach((item, index) => {
+                    const row = `
+                        <tr>
+                            <td>${item.description}</td>
+                            <td>${item.quantity}</td>
+                            <td>${item.discount}%</td>
+                            <td>${item.totalPrice.toFixed(2)}</td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${index})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.insertAdjacentHTML('beforeend', row);
+                });
+            }
+
+            function removeItem(index) {
+                items.splice(index, 1); // Remove item from array
+                updateTable(); // Refresh the table
+                updateOrderSummary(); // Update totals
             }
 
             function clearInputFields() {
@@ -242,84 +262,56 @@
                 document.querySelector('input[name="TotalPrice"]').value = '';
             }
 
-            function calculateTotal(quantity, unitPrice, discount) {
-                const subtotal = quantity * unitPrice;
-                const discountAmount = (subtotal * (discount || 0)) / 100;
-                return subtotal - discountAmount;
-            }
-
-            function removeTableItem(index) {
-                items.splice(index, 1);
-                document.getElementById(`row-${index}`).remove();
-                updateOrderSummary();
-            }
-
             function updateOrderSummary() {
-                // Calculate subtotal (sum of quantity * unitPrice for all items)
-                const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+                // Calculate subtotal
+                const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
 
-                // Calculate total item-level discounts
-                const itemDiscountsTotal = items.reduce((sum, item) => {
-                    const itemSubtotal = item.quantity * item.unitPrice;
-                    return sum + (itemSubtotal * (item.discount || 0)) / 100;
-                }, 0);
+                // Calculate total item discounts
+                const itemDiscounts = items.reduce((sum, item) => sum + item.discountAmount, 0);
 
-                // Get manual discount amount (not percentage)
-                let manualDiscount = parseFloat(document.getElementById('ManualDiscount').value) || 0;
-
-                // Ensure manual discount doesn't exceed subtotal minus item discounts
-                const maxPossibleDiscount = subtotal - itemDiscountsTotal;
-                if (manualDiscount > maxPossibleDiscount) {
-                    manualDiscount = maxPossibleDiscount;
-                    document.getElementById('ManualDiscount').value = maxPossibleDiscount.toFixed(2);
-                }
+                // Get manual discount
+                const manualDiscount = parseFloat(document.getElementById('ManualDiscount').value) || 0;
 
                 // Calculate grand total
-                const grandTotal = subtotal - itemDiscountsTotal - manualDiscount;
+                const grandTotal = subtotal - itemDiscounts - manualDiscount;
 
-                // Update display values
+                // Update display fields
                 document.getElementById('subtotal').value = subtotal.toFixed(2);
-                document.getElementById('totalDiscount').value = itemDiscountsTotal.toFixed(2);
-                document.getElementById('grandTotal').value = Math.max(0, grandTotal.toFixed(2));
+                document.getElementById('totalDiscount').value = itemDiscounts.toFixed(2);
+                document.getElementById('grandTotal').value = Math.max(0, grandTotal).toFixed(2);
             }
 
-            // Add event listeners to calculate total price when inputs change
-            document.querySelector('input[name="Quantity"]').addEventListener('input', updateTotalPrice);
-            document.querySelector('input[name="UnitPrice"]').addEventListener('input', updateTotalPrice);
-            document.querySelector('input[name="Discount"]').addEventListener('input', updateTotalPrice);
+            // Add event listeners for real-time total calculation
+            document.querySelector('input[name="Quantity"]').addEventListener('input', calculateLineTotal);
+            document.querySelector('input[name="UnitPrice"]').addEventListener('input', calculateLineTotal);
+            document.querySelector('input[name="Discount"]').addEventListener('input', calculateLineTotal);
 
             // Add event listener for manual discount
             document.getElementById('ManualDiscount').addEventListener('input', function (e) {
-                // Only allow positive numbers and up to 2 decimal places
-                let value = e.target.value;
-
-                // Remove any characters that aren't numbers or decimal point
-                value = value.replace(/[^\d.]/g, '');
+                // Sanitize input to allow only numbers and decimal point
+                let value = e.target.value.replace(/[^\d.]/g, '');
 
                 // Ensure only one decimal point
                 const parts = value.split('.');
-                if (parts.length > 2) {
-                    value = parts[0] + '.' + parts.slice(1).join('');
-                }
+                if (parts.length > 2) value = parts[0] + '.' + parts.slice(1).join('');
 
                 // Limit to 2 decimal places
-                if (parts.length > 1) {
-                    value = parts[0] + '.' + parts[1].slice(0, 2);
-                }
+                if (parts.length > 1) value = parts[0] + '.' + parts[1].slice(0, 2);
 
-                // Update input value and recalculate totals
                 e.target.value = value;
                 updateOrderSummary();
             });
 
-            function updateTotalPrice() {
+            function calculateLineTotal() {
                 const quantity = parseFloat(document.querySelector('input[name="Quantity"]').value) || 0;
                 const unitPrice = parseFloat(document.querySelector('input[name="UnitPrice"]').value) || 0;
                 const discount = parseFloat(document.querySelector('input[name="Discount"]').value) || 0;
 
-                const total = calculateTotal(quantity, unitPrice, discount);
+                const subtotal = quantity * unitPrice;
+                const discountAmount = (subtotal * discount) / 100;
+                const total = subtotal - discountAmount;
+
                 document.querySelector('input[name="TotalPrice"]').value = total.toFixed(2);
             }
-        
-    </script>
+        </script>
 }
