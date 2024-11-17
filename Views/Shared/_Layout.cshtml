@@ -36,17 +36,15 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3" style="background-color:#E8E8E8">
-            @RenderBody()
-        </main>
-    </div>
+    <main role="main" class="pb-3" style="background-color:#f2f2f2">
+        @RenderBody()
+    </main>
+   
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - Invoice - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
+    <footer class="border-top footer text-muted text-center">
+        &copy; 2024 - Invoice - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
