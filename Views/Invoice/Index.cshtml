@@ -1,4 +1,5 @@
-﻿
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
 <header>
     <link rel="stylesheet" href="~/css/Icon.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
@@ -24,13 +25,14 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="Name">Name</label>
-                                    <input type="text" class="form-control" id="Name" placeholder="Enter Customer Name">
+                                    <input type="hidden" id="CustomerId">
+                                    <input type="text" class="form-control" id="Name" placeholder="Enter Customer Name" autocomplete="off">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="Phone">Phone</label>
-                                    <input type="tel" class="form-control" id="Phone" placeholder="Enter Phone Number">
+                                    <input type="tel" class="form-control" id="Phone" autocomplete="off" placeholder="Enter Phone Number">
                                 </div>
                             </div>
                         </div>
@@ -51,20 +53,21 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="Customer_Id">Customer ID</label>
-                                <input type="number" class="form-control" id="Customer_Id" placeholder="Enter Customer ID">
+                                    <label for="Invoice_ID">Invoice ID</label>
+                                    <input type="number" class="form-control" id="Invoice_ID" value="@DateTime.Now.ToString("yyyyMMddHHmmss")" placeholder="Enter Invoice ID" readonly>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="PrintedBy">Printed By</label>
-                                <input type="text" class="form-control" id="PrintedBy" placeholder="Enter Printer's Name">
+                                    <input type="text" class="form-control" id="PrintedBy" placeholder="Enter Printer's Name" value="@UserManager.GetUserName(User)" readonly>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="Date">Date</label>
-                        <input type="date" class="form-control" id="Date">
+                            <input type="date" class="form-control" id="Date" value="@DateTime.Today.ToString("yyyy-MM-dd")">
+
                     </div>
                 </div>
                 </div>
@@ -224,6 +227,7 @@
 
             // Add to items array
             items.push(newItem);
+            console.log(newItem);
 
             // Update the table
             updateTable();
@@ -299,7 +303,7 @@
         document.getElementById('ManualDiscount').addEventListener('input', function (e) {
             // Sanitize input to allow only numbers and decimal point
             let value = e.target.value.replace(/[^\d.]/g, '');
-
+            debugger;
             // Ensure only one decimal point
             const parts = value.split('.');
             if (parts.length > 2) value = parts[0] + '.' + parts.slice(1).join('');
@@ -331,13 +335,21 @@
                 event.preventDefault();
                 console.log(items);
                 var invoiceData = {
+                    CustomerId: $('#CustomerId').val(),
                     Name: $('#Name').val(),
                     Phone: $('#Phone').val(),
                     Address: $('#Address').val(),
                     Customer_Id: $('#Customer_Id').val(),
                     PrintedBy: $('#PrintedBy').val(),
                     Date: $('#Date').val(),
-                    InvoiceItems: items,
+                    ManualDiscount: $('#ManualDiscount').val(),
+                    
+                    InvoiceItems: items.map(item => ({
+                        Description: item.description,
+                        Quantity: item.quantity,
+                        ItemDiscount: item.discount,
+                        Price: item.unitPrice
+                    }))
                 };
                 console.log(invoiceData);
 
@@ -354,11 +366,7 @@
                         alert("Failed");
                     }
                 });
-
-
             });
-
-           
         });
     </script>
 }

@@ -1,4 +1,5 @@
 ﻿using Invoice.Data;
+using Invoice.Helper;
 using Invoice.View_Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +12,8 @@ namespace Invoice.Controllers
         {
             _context = context;
         }
+        //
+        [Route("Create")]
         public IActionResult Index()
         {
             return View();
@@ -20,9 +23,24 @@ namespace Invoice.Controllers
 
         
         [HttpPost]
-        public IActionResult Index(InvoiceVM model)
+        [Route("Create")]
+        public IActionResult Index( InvoiceVM model)
         {
-            return View();
+            if (model == null)
+                return Json(new { success = false, message = PopupMessage.error });
+            //cheack Invoice_ID is valid or not
+
+            //current login-user-guid id need to store to DB
+            try
+            {
+
+                return Json(new { success = true, message = PopupMessage.success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = PopupMessage.error });
+            }
         }
+        
     }
 }
