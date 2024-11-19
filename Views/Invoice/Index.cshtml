@@ -3,6 +3,8 @@
 <header>
     <link rel="stylesheet" href="~/css/Icon.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
 
 </header>
 
@@ -33,7 +35,12 @@
                                 <div class="form-group">
                                     <label for="Phone">Phone</label>
                                     <input type="tel" class="form-control" id="Phone" autocomplete="off" placeholder="Enter Phone Number">
+                                    <small id="Feedback" class="form-text text-muted" style="display: none;"></small>
+
                                 </div>
+                                <ul id="Customerphoneref" class="dropdown-select list-group position-absolute" style="display:none; z-index: 1000; width: 98.5%; border:none;" hidden>
+                                    <li class="dropdown-item list-group-item"></li>
+                                </ul>
                             </div>
                         </div>
                         <div class="form-group">
@@ -192,6 +199,7 @@
 
     <script src="~/js/jquery-3.6.0.min.js"></script>
     <script src="~/js/alert.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Initialize arrays and variables
         let items = [];
@@ -330,6 +338,81 @@
 
     <script>
         $(document).ready(function () {
+            let typingTimer;
+            const minNumLength = 4;
+
+            $('#Phone').on('keyup', function () {
+                clearTimeout(typingTimer);
+                const NumLength = $(this).val().length;
+               // debugger;
+                if (NumLength < minNumLength) {
+                    $('#Feedback')
+                        .text(`Please enter at least ${minNumLength} characters`)
+                        .removeClass('text-success')
+                        .addClass('text-danger')
+                        .show();
+                } else {
+                    $('#Feedback').hide();
+                    RefferenceAvailability();
+                }
+
+            });
+
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('.form-group').length) {
+                    $('#Customerphoneref').hide();
+                }
+            });
+
+          var RefferenceAvailability =   function () {
+                const Phone = $('#Phone').val();
+
+                $.ajax({
+                    url: '@Url.Action("RefferenceAvailability", "Invoice")',
+                    type: 'GET',
+                    data: { Phone: Phone },
+
+
+                    success: function (response) {
+                        if (response.success) {
+                            tempData = response.refference;
+                            $('#Customerphoneref').empty();
+                            console.log(response.refference);
+
+                            if (tempData.length > 0) {
+                                tempData.forEach(function (item) {
+                                    $('#Customerphoneref').append(
+                                        `<li class="dropdown-item list-group-item"
+                                        data-id="${item.Id}"
+                                        data-name="${item.Name}"
+                                        data-address="${item.Address}"
+                                        style="cursor: pointer;">
+                                        ${item.Phone} - ${item.Name} - ${item.Address}
+                                    </li>`
+                                    );
+                                });
+                                $('#Customerphoneref').show();
+                            }
+                        }
+                    },
+
+                    Error: function () {
+                        
+                    }
+                
+                });
+            }
+
+            // $('#Customerphoneref').on('click', 'li', function () {
+            //     const selectedItem = $(this);
+            //     $('#Name').val(selectedItem.data('name'));
+            //     $('#Address').val(selectedItem.data('address'));
+            //     $('#Customerphoneref').hide();
+            // });
+            
+
+           
+
 
             $("#SaveButton").click(function (event) {
                 event.preventDefault();
@@ -340,7 +423,7 @@
                     Phone: $('#Phone').val(),
                     Address: $('#Address').val(),
                     Customer_Id: $('#Customer_Id').val(),
-                    PrintedBy: $('#PrintedBy').val(),
+                    //PrintedBy: $('#PrintedBy').val(),
                     Date: $('#Date').val(),
                     ManualDiscount: $('#ManualDiscount').val(),
                     
