@@ -17,6 +17,14 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
+      "Id": "G:\\Intern\\Invoice_\\Invoice\\wwwroot\\js\\alert.js",
+      "PackagePath": "staticwebassets\\js\\alert.js"
+    },
+    {
+      "Id": "G:\\Intern\\Invoice_\\Invoice\\wwwroot\\js\\jquery-3.6.0.min.js",
+      "PackagePath": "staticwebassets\\js\\jquery-3.6.0.min.js"
+    },
+    {
       "Id": "G:\\Intern\\Invoice_\\Invoice\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
     },

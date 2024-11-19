@@ -514,6 +514,7 @@ G:\Intern\Invoice_\Invoice\obj\Debug\net8.0\Invoice.MvcApplicationPartsAssemblyI
 G:\Intern\Invoice_\Invoice\obj\Debug\net8.0\Invoice.MvcApplicationPartsAssemblyInfo.cache
 G:\Intern\Invoice_\Invoice\obj\Debug\net8.0\Invoice.RazorAssemblyInfo.cache
 G:\Intern\Invoice_\Invoice\obj\Debug\net8.0\Invoice.RazorAssemblyInfo.cs
+G:\Intern\Invoice_\Invoice\obj\Debug\net8.0\Invoice.sourcelink.json
 G:\Intern\Invoice_\Invoice\obj\Debug\net8.0\staticwebassets.build.json
 G:\Intern\Invoice_\Invoice\obj\Debug\net8.0\staticwebassets.development.json
 G:\Intern\Invoice_\Invoice\obj\Debug\net8.0\staticwebassets\msbuild.Invoice.Microsoft.AspNetCore.StaticWebAssets.props
