@@ -20,3 +20,8 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.small-alert {
+    font-size: 8px;
+    padding: 8px;
+}

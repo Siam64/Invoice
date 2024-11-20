@@ -3,18 +3,15 @@
 <header>
     <link rel="stylesheet" href="~/css/Icon.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-
 </header>
 
 <div class="col-md-12 ">
-     <div class="card shadow mb-4">
+     @* <div class="card shadow mb-4">
         <div class="card-header bg-info text-white text-center">
             <h4 class="mb-0">Invoice</h4>
         </div>
-    </div> 
-    <form>
+    </div>  *@
+    <form id="invoiceForm">
         <div class="row">
             <div class="col-md-7  ps-4">
                 <div class="card">
@@ -26,16 +23,16 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="Name">Name</label>
-                                    <input type="hidden" id="CustomerId">
-                                    <input type="text" class="form-control" id="Name" placeholder="Enter Customer Name" autocomplete="off">
+                                    <label for="Phone">Phone</label>
+                                    <input type="text" class="form-control" id="Phone" autocomplete="off" placeholder="Enter Phone Number">
+                                    <div id="suggestions" style="position: absolute; z-index: 1000; background: white; border: 1px solid #ccc; display: none;"></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="Phone">Phone</label>
-                                    <input type="text" class="form-control" id="Phone" autocomplete="off" placeholder="Enter Phone Number">
-                                    <div id="suggestions" style="position: absolute; z-index: 1000; background: white; border: 1px solid #ccc; display: none;"></div>
+                                    <label for="Name">Name</label>
+                                    <input type="hidden" id="CustomerId">
+                                    <input type="text" class="form-control" id="Name" placeholder="Enter Customer Name" autocomplete="off">
                                 </div>
                             </div>
                         </div>
@@ -94,15 +91,15 @@
                             </div>
                             <div class="col-md-1">
                                 <label>Quantity</label>
-                                <input name="Quantity" type="number" class="form-control " placeholder="0" />
+                                <input name="Quantity" type="number" class="form-control " placeholder="" />
                             </div>
                             <div class="col-md-1">
                                 <label>Unit Price</label>
-                                <input name="UnitPrice" type="number" class="form-control" placeholder="0.00" />
+                                <input name="UnitPrice" type="number" class="form-control" placeholder="" />
                             </div>
                             <div class="col-md-1">
                                 <label>Discount %</label>
-                                <input name="Discount" type="number" class="form-control" placeholder="0.00" />
+                                <input name="Discount" type="number" class="form-control" placeholder="" />
                             </div>
                             <div class="col-md-1">
                                 <label>Total Price</label>
@@ -118,7 +115,7 @@
     <div class="row mt-4">
         <div class="col-12 px-4">
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-9">
                     <div class="card shadow mb-4">
                         <div class="card-header bg-info">
                             <h6 class="mb-0  text-white">Order List</h6>
@@ -128,11 +125,12 @@
                                 <table class="table table-bordered table-hover">
                                     <thead class="bg-light">
                                         <tr>
-                                            <th scope="col">Product Description</th>
-                                            <th scope="col">Quantity</th>
-                                            <th scope="col">Discount</th>
-                                            <th scope="col">Total</th>
-                                            <th scope="col">Actions</th>
+                                            <th scope="col" style="width: 50%;">Product Description</th>
+                                            <th scope="col" style="width: 10%;">Quantity</th>
+                                            <th scope="col" style="width: 10%;">Price</th>
+                                            <th scope="col" style="width: 10%;">Discount</th>
+                                            <th scope="col" style="width: 10%;">Total</th>
+                                            <th scope="col" style="width: 10%;">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody id="items-container">
@@ -142,7 +140,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="card shadow mb-4">
                         <div class="card-header bg-info">
                             <h6 class="mb-0  text-white">Order Summary</h6>
@@ -164,7 +162,7 @@
                             <div class="form-group mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <label for="ManualDiscount" class="mb-0">Discount:</label>
-                                    <input type="text" name="ManualDiscount" id="ManualDiscount" class="form-control text-end" placeholder="0.00" style="max-width: 120px;">
+                                    <input type="text" name="ManualDiscount" id="ManualDiscount" class="form-control text-end" style="max-width: 120px;">
                                 </div>
                             </div>
                             <hr />
@@ -196,6 +194,11 @@
     <script src="~/js/jquery-3.6.0.min.js"></script>
     <script src="~/js/alert.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    @* this script is for continious adding items in order list table and clearing the invoice item fields
+    its calculating the items price and discount in %
+    its also calculating realtime with eventlistener
+    it also calculating the manual discount and shows the final price *@
     <script>
         // Initialize arrays and variables
         let items = [];
@@ -243,6 +246,7 @@
             updateOrderSummary();
         }
 
+        //populating order list
         function updateTable() {
             const tableBody = document.getElementById('items-container');
             tableBody.innerHTML = ''; // Clear existing rows
@@ -252,6 +256,7 @@
                                 <tr>
                                     <td>${item.description}</td>
                                     <td>${item.quantity}</td>
+                                    <td>${item.unitPrice}</td>
                                     <td>${item.discount}%</td>
                                     <td>${item.totalPrice.toFixed(2)}</td>
                                     <td>
@@ -332,6 +337,8 @@
         }
     </script>
 
+
+    @* this script handels the invoice saving and printing *@
     <script>
         $(document).ready(function () {
             // Function to collect the invoice data dynamically when the button is clicked
@@ -342,6 +349,7 @@
                     Phone: $('#Phone').val(),
                     Address: $('#Address').val(),
                     Customer_Id: $('#Customer_Id').val(),
+                    Invoice_ID: $('#Invoice_ID').val(),
                     Date: $('#Date').val(),
                     ManualDiscount: $('#ManualDiscount').val(),
                     IsPrint: isPrint,  // Dynamically add IsPrint field
@@ -365,10 +373,45 @@
                     type: 'POST',
                     data: invoiceData,
                     success: function () {
-                        alert("Invoice saved successfully.");
+                        Swal.fire({
+                            position: "top-end",
+                            icon: "success",
+                            title: "Invoice has been saved!",
+                            timer: 1500,
+                            showConfirmButton: false,
+                            customClass: {
+                                popup: 'small-alert'
+                            }
+                        });
+                        //resetting the form
+                        $('#invoiceForm')[0].reset();
+
+                        //refreshing invoice id
+                        var newInvoiceId = new Date().toISOString().replace(/[-T:.Z]/g, "").slice(0, 14);
+                        $("#Invoice_ID").val(newInvoiceId);
+
+                        //resetting order list
+                        items = [];
+                        updateTable();
+
+                        //resetting order summary
+                        document.getElementById('subtotal').value = "0.00";
+                        document.getElementById('totalDiscount').value = "0.00";
+                        document.getElementById('ManualDiscount').value = "";
+                        document.getElementById('grandTotal').value = "0.00";
+                        updateOrderSummary();
                     },
                     error: function () {
-                        alert("Failed to save invoice.");
+                        Swal.fire({
+                            position: "top-end",
+                            icon: "error",
+                            title: "Something went wrong",
+                            timer: 1500,
+                            showConfirmButton: false,
+                            customClass: {
+                                popup: 'small-alert'
+                            }
+                        });
                     }
                 });
             });
@@ -396,6 +439,8 @@
 
     </script>
 
+
+    @* this script handels auto complete and refference from database for phone *@
     <script>
         $(document).ready(function () {
             $('#Phone').on('input', function () {
@@ -407,6 +452,7 @@
                         type: 'GET',
                         data: { phone: phoneNumber },
                         success: function (data) {
+                            console.log(data);
                             let suggestionsDiv = $('#suggestions');
                             suggestionsDiv.empty().hide();
 

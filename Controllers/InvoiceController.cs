@@ -2,6 +2,7 @@
 using Invoice.Data_Models;
 using Invoice.Helper;
 using Invoice.View_Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Data.Common;
@@ -11,6 +12,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Invoice.Controllers
 {
+    [Authorize]
     public class InvoiceController : Controller
     {
         private readonly InvoiceContext _context;
@@ -86,6 +88,7 @@ namespace Invoice.Controllers
         //Customer Method for mapping
         public int InsertCustomer(int id, string Name, string phone, string address, Guid CrrUserGuid)
         {
+           
             Customer data = new Customer();
 
             data.CreateBy = CrrUserGuid;
@@ -94,11 +97,10 @@ namespace Invoice.Controllers
             data.Phone = phone;
             data.Address = address;
 
-            if (id <= 0)
-            {
+           
                 _context.Customer.Add(data);
                 _context.SaveChanges();
-            }
+            
 
 
             return (data.Id);
@@ -121,9 +123,12 @@ namespace Invoice.Controllers
                 Guid CrrUserGuid = GuidHelper.ToGuidOrDefault(userid);
 
 
-
-                //Method calling for Customer table
-                model.CustomerId = InsertCustomer(model.CustomerId, model.Name, model.Phone, model.Address, CrrUserGuid);
+                if(model.CustomerId <= 0)
+                {
+                    //Method calling for Customer table
+                    model.CustomerId = InsertCustomer(model.CustomerId, model.Name, model.Phone, model.Address, CrrUserGuid);
+                }
+               
 
 
 
@@ -138,7 +143,7 @@ namespace Invoice.Controllers
 
                 if (invoiceData != null)
                 {
-                    bool isMatch = _context.Invoice.Any(x => x.Id == model.Invoice_ID);
+                    bool isMatch = _context.InvoiceItems.Any(x => x.Id == model.Invoice_ID);
                     if (isMatch)
                     {
                         return Json(new { success = false, message = PopupMessage.error });
@@ -148,10 +153,21 @@ namespace Invoice.Controllers
                 }
 
 
+
+
                 //Method calling for Invoice_Item Table
                 InsertInvoiceItem(model.InvoiceItems, invoiceData.Id, CrrUserGuid);
 
+
+
+
+                if (model.IsPrint)
+                {
+                    InvoicePrint(model);
+                }
                 return Json(new { success = true, message = PopupMessage.success });
+
+
             }
 
 
@@ -159,6 +175,11 @@ namespace Invoice.Controllers
             {
                 return Json(new { success = false, message = PopupMessage.error });
             }
+        }
+
+        public IActionResult InvoicePrint(InvoiceVM model)
+        {
+            return View();
         }
     }
 }
