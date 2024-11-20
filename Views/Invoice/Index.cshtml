@@ -34,13 +34,9 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="Phone">Phone</label>
-                                    <input type="tel" class="form-control" id="Phone" autocomplete="off" placeholder="Enter Phone Number">
-                                    <small id="Feedback" class="form-text text-muted" style="display: none;"></small>
-
+                                    <input type="text" class="form-control" id="Phone" autocomplete="off" placeholder="Enter Phone Number">
+                                    <div id="suggestions" style="position: absolute; z-index: 1000; background: white; border: 1px solid #ccc; display: none;"></div>
                                 </div>
-                                <ul id="Customerphoneref" class="dropdown-select list-group position-absolute" style="display:none; z-index: 1000; width: 98.5%; border:none;" hidden>
-                                    <li class="dropdown-item list-group-item"></li>
-                                </ul>
                             </div>
                         </div>
                         <div class="form-group">
@@ -338,95 +334,17 @@
 
     <script>
         $(document).ready(function () {
-            let typingTimer;
-            const minNumLength = 4;
-
-            $('#Phone').on('keyup', function () {
-                clearTimeout(typingTimer);
-                const NumLength = $(this).val().length;
-               // debugger;
-                if (NumLength < minNumLength) {
-                    $('#Feedback')
-                        .text(`Please enter at least ${minNumLength} characters`)
-                        .removeClass('text-success')
-                        .addClass('text-danger')
-                        .show();
-                } else {
-                    $('#Feedback').hide();
-                    RefferenceAvailability();
-                }
-
-            });
-
-            $(document).on('click', function (e) {
-                if (!$(e.target).closest('.form-group').length) {
-                    $('#Customerphoneref').hide();
-                }
-            });
-
-          var RefferenceAvailability =   function () {
-                const Phone = $('#Phone').val();
-
-                $.ajax({
-                    url: '@Url.Action("RefferenceAvailability", "Invoice")',
-                    type: 'GET',
-                    data: { Phone: Phone },
-
-
-                    success: function (response) {
-                        if (response.success) {
-                            tempData = response.refference;
-                            $('#Customerphoneref').empty();
-                            console.log(response.refference);
-
-                            if (tempData.length > 0) {
-                                tempData.forEach(function (item) {
-                                    $('#Customerphoneref').append(
-                                        `<li class="dropdown-item list-group-item"
-                                        data-id="${item.Id}"
-                                        data-name="${item.Name}"
-                                        data-address="${item.Address}"
-                                        style="cursor: pointer;">
-                                        ${item.Phone} - ${item.Name} - ${item.Address}
-                                    </li>`
-                                    );
-                                });
-                                $('#Customerphoneref').show();
-                            }
-                        }
-                    },
-
-                    Error: function () {
-                        
-                    }
-                
-                });
-            }
-
-            // $('#Customerphoneref').on('click', 'li', function () {
-            //     const selectedItem = $(this);
-            //     $('#Name').val(selectedItem.data('name'));
-            //     $('#Address').val(selectedItem.data('address'));
-            //     $('#Customerphoneref').hide();
-            // });
-            
-
-           
-
-
-            $("#SaveButton").click(function (event) {
-                event.preventDefault();
-                console.log(items);
-                var invoiceData = {
+            // Function to collect the invoice data dynamically when the button is clicked
+            function getInvoiceData(isPrint = false) {
+                return {
                     CustomerId: $('#CustomerId').val(),
                     Name: $('#Name').val(),
                     Phone: $('#Phone').val(),
                     Address: $('#Address').val(),
                     Customer_Id: $('#Customer_Id').val(),
-                    //PrintedBy: $('#PrintedBy').val(),
                     Date: $('#Date').val(),
                     ManualDiscount: $('#ManualDiscount').val(),
-                    
+                    IsPrint: isPrint,  // Dynamically add IsPrint field
                     InvoiceItems: items.map(item => ({
                         Description: item.description,
                         Quantity: item.quantity,
@@ -434,22 +352,124 @@
                         Price: item.unitPrice
                     }))
                 };
-                console.log(invoiceData);
+            }
+
+            // Handle Save Button Click
+            $("#SaveButton").click(function (event) {
+                event.preventDefault();
+
+                var invoiceData = getInvoiceData(false);
 
                 $.ajax({
                     url: '@Url.Action("Index", "Invoice")',
                     type: 'POST',
                     data: invoiceData,
-
                     success: function () {
-                        alert("sent to controller");
+                        alert("Invoice saved successfully.");
                     },
+                    error: function () {
+                        alert("Failed to save invoice.");
+                    }
+                });
+            });
 
-                    Error: function () {
-                        alert("Failed");
+            // Handle Print Button Click
+            $("#PrintButton").click(function (event) {
+                event.preventDefault();
+
+                var invoiceData = getInvoiceData(true);
+
+                $.ajax({
+                    url: '@Url.Action("Index", "Invoice")',
+                    type: 'POST',
+                    data: invoiceData,
+                    success: function () {
+                        // If the PDF is generated successfully, the server will send the file for download
+                        window.location.href = response.downloadUrl; // Trigger the download via URL
+                    },
+                    error: function () {
+                        alert("Failed to print invoice.");
                     }
                 });
             });
         });
+
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#Phone').on('input', function () {
+                let phoneNumber = $(this).val();
+
+                if (phoneNumber.length >= 3) {
+                    $.ajax({
+                        url: '/GetPhoneSuggestions',
+                        type: 'GET',
+                        data: { phone: phoneNumber },
+                        success: function (data) {
+                            let suggestionsDiv = $('#suggestions');
+                            suggestionsDiv.empty().hide();
+
+                            if (data.success && data.references.length) {
+                                data.references.forEach(function (item) {
+                                    suggestionsDiv.append(`
+                                        <div class="suggestion-item"
+                                             style="padding: 5px; cursor: pointer;"
+                                             data-id="${item.id}"
+                                             data-name="${item.name}"
+                                             data-phone="${item.phone}"
+                                             data-address="${item.address}">
+                                             ${item.name} - ${item.phone}
+                                        </div>
+                                    `);
+                                });
+                                suggestionsDiv.show();
+                            } else {
+                                suggestionsDiv.append(`<div style="padding: 5px;">No suggestions found</div>`);
+                                suggestionsDiv.show();
+                            }
+                        },
+                        error: function () {
+                            console.error('Error fetching phone suggestions.');
+                        }
+                    });
+                } else {
+                    $('#suggestions').hide();
+                }
+            });
+
+            // Handle click on suggestions
+            $(document).on('click', '.suggestion-item', function () {
+                var customerId = $(this).data('id');
+                var name = $(this).data('name');
+                var phone = $(this).data('phone');
+                var address = $(this).data('address');
+
+                // Fill the form fields with the selected suggestion
+                $('#CustomerId').val(customerId);
+                $('#Name').val(name);
+                $('#Phone').val(phone);
+                $('#Address').val(address);
+
+                // Hide the suggestions dropdown
+                $('#suggestions').hide();
+            });
+
+            // Hide suggestions when clicking outside the input or suggestion list
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('#Phone').length && !$(e.target).closest('#suggestions').length) {
+                    $('#suggestions').hide();
+                }
+            });
+
+            // Optionally, hide suggestions when focus is lost from the phone input field
+            $('#Phone').on('blur', function () {
+                setTimeout(function () {
+                    $('#suggestions').hide();
+                }, 200);  // Delay to allow click on suggestion item
+            });
+
+        });
+
     </script>
 }

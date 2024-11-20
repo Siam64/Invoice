@@ -29,15 +29,16 @@ namespace Invoice.Controllers
 
 
         [HttpGet]
-        [Route("RefferenceAvailability")]
-        public IActionResult RefferenceAvailability(string phone)
+        [Route("GetPhoneSuggestions")]
+        public IActionResult GetPhoneSuggestions(string phone)
         {
-            if (phone == null)
+            if (string.IsNullOrEmpty(phone))
                 return Json(new { success = false, message = PopupMessage.error });
 
             try
             {
-                var refference = _context.Customer.Where(x => x.Phone.Contains(phone))
+                var references = _context.Customer
+                    .Where(x => x.Phone.StartsWith(phone))
                     .Select(x => new
                     {
                         x.Id,
@@ -48,13 +49,14 @@ namespace Invoice.Controllers
                     .Take(5)
                     .ToList();
 
-                return Json(new { success = true, refference });
+                return Json(new { success = true, references });
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = PopupMessage.error });
             }
         }
+
 
 
         //Invoice_Item method for mapping

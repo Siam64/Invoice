@@ -21,6 +21,7 @@
         public List<InvoiceItemVM> InvoiceItems { get; set; }
 
 
+        public bool IsPrint { get; set; }
         public Guid CreateBy { get; set; }
         public DateTime CreateAt { get; set; }
     }
