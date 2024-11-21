@@ -15,6 +15,7 @@
     public class Invoice
     {
         public int Id { get; set; }
+        public string Invoice_ID { get; set; }
         public int Customer_Id { get; set; }
         public Guid PrintedBy { get; set; }
         public DateTime Date { get; set; }
@@ -27,7 +28,8 @@
     public class Invoice_Item
     {
         public int Id { get; set; }
-        public int Invoice_ID { get; set; }
+        public int Customer_Id { get; set; }
+        public string Invoice_ID { get; set; }
         public string? Description { get; set; }
         public int Quantity { get; set; }
         public double ItemDiscount { get; set; }

@@ -14,7 +14,8 @@
 
 
         public int Invoice_ID { get; set; }
-        public string Descriptiion { get; set; }
+        public string InvoiceID { get; set; }
+        public string Description { get; set; }
         public int Qunatity { get; set; }
         public double ManualDiscount { get; set; }
         public double Price { get; set; }
@@ -28,7 +29,6 @@
     public class InvoiceItemVM
     {
         public int Id { get; set; }
-        public int Invoice_ID { get; set; }
         public string? Description { get; set; }
         public int Quantity { get; set; }
         public double ItemDiscount { get; set; }

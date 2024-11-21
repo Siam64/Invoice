@@ -19,12 +19,12 @@
                         <h6 class="mb-0  text-white">Customer Details</h6>
                     </div>
                     <div class="card-body">
-                        <input type="hidden" class="form-control" id="Id">
+                       
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="Phone">Phone</label>
-                                    <input type="text" class="form-control" id="Phone" autocomplete="off" placeholder="Enter Phone Number">
+                                    <input type="text" class="form-control" id="Phone" autocomplete="off" placeholder="Enter Phone Number" required>
                                     <div id="suggestions" style="position: absolute; z-index: 1000; background: white; border: 1px solid #ccc; display: none;"></div>
                                 </div>
                             </div>
@@ -54,7 +54,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                     <label for="Invoice_ID">Invoice ID</label>
-                                    <input type="number" class="form-control" id="Invoice_ID" value="@DateTime.Now.ToString("yyyyMMddHHmmss")" placeholder="Enter Invoice ID" readonly>
+                                    <input type="number" class="form-control" id="Invoice_ID" name="Invoice_ID" value="@DateTime.Now.ToString("yyyyMMddHHmmss")" placeholder="Enter Invoice ID" readonly>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -348,8 +348,8 @@
                     Name: $('#Name').val(),
                     Phone: $('#Phone').val(),
                     Address: $('#Address').val(),
-                    Customer_Id: $('#Customer_Id').val(),
-                    Invoice_ID: $('#Invoice_ID').val(),
+                    
+                    InvoiceID: $('#Invoice_ID').val(),
                     Date: $('#Date').val(),
                     ManualDiscount: $('#ManualDiscount').val(),
                     IsPrint: isPrint,  // Dynamically add IsPrint field
@@ -361,12 +361,15 @@
                     }))
                 };
             }
-
+            
             // Handle Save Button Click
             $("#SaveButton").click(function (event) {
                 event.preventDefault();
+                
 
                 var invoiceData = getInvoiceData(false);
+                console.log("Invoice Data:", invoiceData);
+
 
                 $.ajax({
                     url: '@Url.Action("Index", "Invoice")',
@@ -427,8 +430,8 @@
                     type: 'POST',
                     data: invoiceData,
                     success: function () {
-                        // If the PDF is generated successfully, the server will send the file for download
-                        window.location.href = response.downloadUrl; // Trigger the download via URL
+                       window.open('@Url.Action("InvoicePrint", "Invoice")', '_blank');
+
                     },
                     error: function () {
                         alert("Failed to print invoice.");

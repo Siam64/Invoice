@@ -5,10 +5,12 @@ using Invoice.View_Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Newtonsoft.Json;
 using System.Data.Common;
 using System.Net;
 using System.Security.Claims;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Newtonsoft.Json;
 
 namespace Invoice.Controllers
 {
@@ -62,7 +64,7 @@ namespace Invoice.Controllers
 
 
         //Invoice_Item method for mapping
-        public IActionResult InsertInvoiceItem(List<InvoiceItemVM> model, int InvoiceId, Guid UderId)
+        public IActionResult InsertInvoiceItem(List<InvoiceItemVM> model, string InvoiceId, int customerId, Guid UderId)
         {
 
 
@@ -76,6 +78,8 @@ namespace Invoice.Controllers
                 InvoiceItems.Quantity = item.Quantity;
                 InvoiceItems.ItemDiscount = item.ItemDiscount;
                 InvoiceItems.Invoice_ID = InvoiceId;
+                InvoiceItems.Customer_Id = customerId;
+               
 
                 _context.InvoiceItems.Add(InvoiceItems);
                 _context.SaveChanges();
@@ -140,10 +144,11 @@ namespace Invoice.Controllers
                 invoiceData.Customer_Id = model.CustomerId;
                 invoiceData.ManualDiscount = model.ManualDiscount;
                 invoiceData.Date= model.Date;
+                invoiceData.Invoice_ID = model.InvoiceID;
 
                 if (invoiceData != null)
                 {
-                    bool isMatch = _context.InvoiceItems.Any(x => x.Id == model.Invoice_ID);
+                    bool isMatch = _context.InvoiceItems.Any(x => x.Id.ToString() == model.InvoiceID);
                     if (isMatch)
                     {
                         return Json(new { success = false, message = PopupMessage.error });
@@ -156,30 +161,42 @@ namespace Invoice.Controllers
 
 
                 //Method calling for Invoice_Item Table
-                InsertInvoiceItem(model.InvoiceItems, invoiceData.Id, CrrUserGuid);
-
+                InsertInvoiceItem(model.InvoiceItems, model.InvoiceID, model.CustomerId, CrrUserGuid);
 
 
 
                 if (model.IsPrint)
                 {
-                    InvoicePrint(model);
+                    
+                    HttpContext.Session.SetString("InvoiceModel", JsonConvert.SerializeObject(model));
+
+                    
+                    return Json(new { success = true, message = PopupMessage.success });
                 }
                 return Json(new { success = true, message = PopupMessage.success });
 
 
             }
 
-
+            
             catch (Exception ex)
             {
                 return Json(new { success = false, message = PopupMessage.error });
             }
         }
 
-        public IActionResult InvoicePrint(InvoiceVM model)
+
+
+        public IActionResult InvoicePrint()
         {
-            return View();
+            
+            var invoiceModelJson = HttpContext.Session.GetString("InvoiceModel");
+
+ 
+            InvoiceVM model = JsonConvert.DeserializeObject<InvoiceVM>(invoiceModelJson);
+
+
+            return View(model);
         }
     }
 }
