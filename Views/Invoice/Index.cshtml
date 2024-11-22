@@ -103,7 +103,7 @@
                             </div>
                             <div class="col-md-1">
                                 <label>Total Price</label>
-                                <input name="TotalPrice" type="number" class="form-control" placeholder="0.00" readonly />
+                                <input name="TotalPrice" id="TotalPrice" type="number" class="form-control" placeholder="0.00" readonly />
                             </div>
                         </div>
                     </div>
@@ -296,11 +296,14 @@
 
             // Calculate grand total
             const grandTotal = subtotal - itemDiscounts - manualDiscount;
-
+            
+            
             // Update display fields
             document.getElementById('subtotal').value = subtotal.toFixed(2);
             document.getElementById('totalDiscount').value = itemDiscounts.toFixed(2);
             document.getElementById('grandTotal').value = Math.max(0, grandTotal).toFixed(2);
+
+            
         }
 
         // Add event listeners for real-time total calculation
@@ -348,16 +351,18 @@
                     Name: $('#Name').val(),
                     Phone: $('#Phone').val(),
                     Address: $('#Address').val(),
-                    
+                    GrandTotal: $('#grandTotal').val(),
                     InvoiceID: $('#Invoice_ID').val(),
                     Date: $('#Date').val(),
                     ManualDiscount: $('#ManualDiscount').val(),
                     IsPrint: isPrint,  // Dynamically add IsPrint field
                     InvoiceItems: items.map(item => ({
+                        TotalPrice: item.totalPrice,
                         Description: item.description,
                         Quantity: item.quantity,
                         ItemDiscount: item.discount,
                         Price: item.unitPrice
+                        
                     }))
                 };
             }

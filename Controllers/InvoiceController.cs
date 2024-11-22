@@ -77,8 +77,10 @@ namespace Invoice.Controllers
                 InvoiceItems.Price = item.Price;
                 InvoiceItems.Quantity = item.Quantity;
                 InvoiceItems.ItemDiscount = item.ItemDiscount;
+                InvoiceItems.TotalPrice = item.TotalPrice;
                 InvoiceItems.Invoice_ID = InvoiceId;
                 InvoiceItems.Customer_Id = customerId;
+                
                
 
                 _context.InvoiceItems.Add(InvoiceItems);
@@ -145,6 +147,7 @@ namespace Invoice.Controllers
                 invoiceData.ManualDiscount = model.ManualDiscount;
                 invoiceData.Date= model.Date;
                 invoiceData.Invoice_ID = model.InvoiceID;
+                invoiceData.grandTotal = model.grandTotal;
 
                 if (invoiceData != null)
                 {

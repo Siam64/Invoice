@@ -20,6 +20,7 @@
         public Guid PrintedBy { get; set; }
         public DateTime Date { get; set; }
         public double ManualDiscount { get; set; }
+        public double grandTotal { get; set; }
         public Guid CreateBy { get; set; }
         public DateTime CreateAt { get; set; }
         
@@ -34,7 +35,7 @@
         public int Quantity { get; set; }
         public double ItemDiscount { get; set; }
         public double Price { get; set; }
-
+        public double TotalPrice { get; set; }
         public Guid CreateBy { get; set; }
         public DateTime CreateAt { get; set; }
     }
