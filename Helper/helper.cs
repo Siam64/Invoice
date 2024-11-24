@@ -12,6 +12,14 @@
 
     }
 
+    public static class DiscountType
+    {
+        public const string Percent = "%";
+        public const string Ammount = "৳";
+        
+
+    }
+
     public static class GuidHelper
     {
         public static Guid ToGuidOrDefault(string guidString)

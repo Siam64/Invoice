@@ -84,22 +84,28 @@
                     </div>
 
                     <div class="card-body">
-                        <div class="row mb-3">
+                        <div class="row mb-3 align-items-end">
                             <div class="col-md-8">
                                 <label>Product Description</label>
                                 <input name="Description" class="form-control" placeholder="Add Product Description" />
                             </div>
                             <div class="col-md-1">
                                 <label>Quantity</label>
-                                <input name="Quantity" type="number" class="form-control " placeholder="" />
+                                <input name="Quantity" type="number" value="1" class="form-control" placeholder="" />
                             </div>
                             <div class="col-md-1">
                                 <label>Unit Price</label>
                                 <input name="UnitPrice" type="number" class="form-control" placeholder="" />
                             </div>
                             <div class="col-md-1">
-                                <label>Discount %</label>
-                                <input name="Discount" type="number" class="form-control" placeholder="" />
+                                <label>Discount</label>
+                                <div class="input-group">
+                                    <input name="Discount" type="number" class="form-control" placeholder="" />
+                                    <select name="DiscountType" class="form-select form-select-sm p-0" style="width: 40px; flex: 0 0 auto;">
+                                        <option value="@Invoice.Helper.DiscountType.Percent">@Invoice.Helper.DiscountType.Percent</option>
+                                        <option value="@Invoice.Helper.DiscountType.Ammount">@Invoice.Helper.DiscountType.Ammount</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-md-1">
                                 <label>Total Price</label>
@@ -148,7 +154,7 @@
                         <div class="card-body">
                             <div class="form-group mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <label for="subtotal" class="mb-0">Subtotal:</label>
+                                    <label for="subtotal" class="mb-0">Subtotal(without Discount):</label>
                                     <input type="text" id="subtotal" class="form-control text-end" placeholder="0.00" readonly style="max-width: 120px;">
                                 </div>
                             </div>
@@ -200,15 +206,16 @@
     its also calculating realtime with eventlistener
     it also calculating the manual discount and shows the final price *@
     <script>
-        // Initialize arrays and variables
+               // Initialize arrays and variables
         let items = [];
-        
+
         function addItem() {
             // Get values from input fields
             const description = document.querySelector('input[name="Description"]').value;
             const quantity = parseFloat(document.querySelector('input[name="Quantity"]').value);
             const unitPrice = parseFloat(document.querySelector('input[name="UnitPrice"]').value);
-            const discount = parseFloat(document.querySelector('input[name="Discount"]').value) || 0;
+            const discountValue = parseFloat(document.querySelector('input[name="Discount"]').value) || 0;
+            const discountType = document.querySelector('select[name="DiscountType"]').value;
 
             // Validate inputs
             if (!description || !quantity || !unitPrice) {
@@ -218,7 +225,7 @@
 
             // Calculate total price for this item
             const subtotal = quantity * unitPrice;
-            const discountAmount = (subtotal * discount) / 100;
+            const discountAmount = calculateDiscount(subtotal, discountValue, discountType);
             const totalPrice = subtotal - discountAmount;
 
             // Create new item object
@@ -226,7 +233,8 @@
                 description,
                 quantity,
                 unitPrice,
-                discount,
+                discountValue,
+                discountType,
                 subtotal,
                 discountAmount,
                 totalPrice
@@ -246,34 +254,41 @@
             updateOrderSummary();
         }
 
-        //populating order list
+        function calculateDiscount(subtotal, discountValue, discountType) {
+            if (discountType === '%') {
+                return (subtotal * discountValue) / 100;
+            } else {
+                return Math.min(discountValue, subtotal);
+            }
+        }
+
         function updateTable() {
             const tableBody = document.getElementById('items-container');
             tableBody.innerHTML = ''; // Clear existing rows
 
             items.forEach((item, index) => {
                 const row = `
-                                <tr>
-                                    <td>${item.description}</td>
-                                    <td>${item.quantity}</td>
-                                    <td>${item.unitPrice}</td>
-                                    <td>${item.discount}%</td>
-                                    <td>${item.totalPrice.toFixed(2)}</td>
-                                    <td>
-                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${index})">
-                                            <i class="bi bi-trash"></i> Remove
-                                        </button>
-                                    </td>
-                                </tr>
-                            `;
+                    <tr>
+                        <td>${item.description}</td>
+                        <td>${item.quantity}</td>
+                        <td>${item.unitPrice}</td>
+                        <td>${item.discountValue}${item.discountType}</td>
+                        <td>${item.totalPrice.toFixed(2)}</td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${index})">
+                                <i class="bi bi-trash"></i> Remove
+                            </button>
+                        </td>
+                    </tr>
+                `;
                 tableBody.insertAdjacentHTML('beforeend', row);
             });
         }
 
         function removeItem(index) {
-            items.splice(index, 1); // Remove item from array
-            updateTable(); // Refresh the table
-            updateOrderSummary(); // Update totals
+            items.splice(index, 1);
+            updateTable();
+            updateOrderSummary();
         }
 
         function clearInputFields() {
@@ -296,26 +311,24 @@
 
             // Calculate grand total
             const grandTotal = subtotal - itemDiscounts - manualDiscount;
-            
-            
+
             // Update display fields
             document.getElementById('subtotal').value = subtotal.toFixed(2);
-            document.getElementById('totalDiscount').value = itemDiscounts.toFixed(2);
+            document.getElementById('totalDiscount').value = (itemDiscounts + manualDiscount).toFixed(2);
             document.getElementById('grandTotal').value = Math.max(0, grandTotal).toFixed(2);
-
-            
         }
 
         // Add event listeners for real-time total calculation
         document.querySelector('input[name="Quantity"]').addEventListener('input', calculateLineTotal);
         document.querySelector('input[name="UnitPrice"]').addEventListener('input', calculateLineTotal);
         document.querySelector('input[name="Discount"]').addEventListener('input', calculateLineTotal);
+        document.querySelector('select[name="DiscountType"]').addEventListener('change', calculateLineTotal);
 
         // Add event listener for manual discount
-        document.getElementById('ManualDiscount').addEventListener('input', function (e) {
+        document.getElementById('ManualDiscount').addEventListener('input', function(e) {
             // Sanitize input to allow only numbers and decimal point
             let value = e.target.value.replace(/[^\d.]/g, '');
-            debugger;
+
             // Ensure only one decimal point
             const parts = value.split('.');
             if (parts.length > 2) value = parts[0] + '.' + parts.slice(1).join('');
@@ -330,15 +343,18 @@
         function calculateLineTotal() {
             const quantity = parseFloat(document.querySelector('input[name="Quantity"]').value) || 0;
             const unitPrice = parseFloat(document.querySelector('input[name="UnitPrice"]').value) || 0;
-            const discount = parseFloat(document.querySelector('input[name="Discount"]').value) || 0;
+            const discountValue = parseFloat(document.querySelector('input[name="Discount"]').value) || 0;
+            const discountType = document.querySelector('select[name="DiscountType"]').value;
 
             const subtotal = quantity * unitPrice;
-            const discountAmount = (subtotal * discount) / 100;
+            const discountAmount = calculateDiscount(subtotal, discountValue, discountType);
             const total = subtotal - discountAmount;
 
             document.querySelector('input[name="TotalPrice"]').value = total.toFixed(2);
         }
     </script>
+
+
 
 
     @* this script handels the invoice saving and printing *@

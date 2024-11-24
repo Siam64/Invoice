@@ -1,99 +1,147 @@
-﻿@* @model Invoice.View_Models.InvoiceVM
-@{
-    Layout = null; // Or use your layout page if applicable
-}
+﻿@model Invoice.View_Models.InvoiceVM
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+<style>
+    .invoice-container {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Details</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <style>
-        body {
-            margin: 20px;
-            font-family: Arial, sans-serif;
+    .invoice-title {
+        color: #2c3e50;
+        font-size: 24px;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+    .invoice-info {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+        .invoice-info p {
+            margin: 8px 0;
         }
 
-        .invoice-header {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
+        .invoice-info strong {
+            color: #2c3e50;
+            display: inline-block;
+            width: 140px;
         }
 
-        .invoice-details {
-            margin-bottom: 30px;
-        }
+    .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
 
-        .table th, .table td {
-            vertical-align: middle;
-        }
-
-        .table th {
-            background-color: #007bff;
+        .invoice-table th {
+            background-color: #3498db;
             color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
         }
 
-        .total-row {
-            font-weight: bold;
+        .invoice-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .invoice-table tr:nth-child(even) {
             background-color: #f8f9fa;
         }
-    </style>
-</head>
-<body>
 
-    <div class="container">
-        <div class="invoice-header text-center mb-4">
-            <h1 class="fw-bold">Invoice Details</h1>
+        .invoice-table tr:hover {
+            background-color: #f1f4f6;
+        }
+
+    .grand-total {
+        margin-top: 20px;
+        text-align: right;
+        font-size: 1.2em;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+        .grand-total strong {
+            color: #2c3e50;
+            margin-right: 10px;
+        }
+
+    @@media print {
+        .invoice-container {
+            box-shadow: none;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .invoice-table th {
+            background-color: #f8f9fa !important;
+            color: #333;
+        }
+    }
+</style>
+
+<div class="invoice-container">
+    <h1 class="invoice-title">Invoice Details</h1>
+
+    <div class="invoice-info">
+        <div>
+            <p><strong>Customer Name:</strong> @Model.Name</p>
+            <p><strong>Phone:</strong> @Model.Phone</p>
+            <p><strong>Address:</strong> @Model.Address</p>
         </div>
-
-        <div class="invoice-details">
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Customer Name:</strong> @Model.Name</p>
-                    <p><strong>Phone:</strong> @Model.Phone</p>
-                    <p><strong>Address:</strong> @Model.Address</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p><strong>Date:</strong> @Model.Date.ToString("dd-MM-yyyy")</p>
-                    <p><strong>Manual Discount:</strong> @Model.ManualDiscount</p>
-                </div>
-            </div>
+        <div>
+            <p><strong>Date:</strong> @Model.Date.ToString("dd-MM-yyyy")</p>
+            <p><strong>Printed By:</strong>@UserManager.GetUserName(User) </p>
+            
         </div>
-
-        <table class="table table-bordered table-hover">
-            <thead class="text-center">
-                <tr>
-                    <th>Description</th>
-                    <th>Quantity</th>
-                    <th>Item Discount</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.InvoiceItems)
-                {
-                    <tr>
-                        <td>@item.Description</td>
-                        <td class="text-center">@item.Quantity</td>
-                        <td class="text-center">@item.ItemDiscount</td>
-                        <td class="text-end">@item.Price.ToString("C")</td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot>
-                <tr class="total-row">
-                    <td colspan="3" class="text-end">Total:</td>
-                    <td class="text-end">@Model.InvoiceItems.Sum(i => i.Price - i.ItemDiscount).ToString("C")</td>
-                </tr>
-            </tfoot>
-        </table>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html> *@
+    <table class="invoice-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Item Discount</th>
+                <th>Manual Discount</th>
+                <th>Unit Price</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.InvoiceItems)
+            {
+                <tr>
+                    <td>@item.Description</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.ItemDiscount</td>
+                    <td>@Model.ManualDiscount</td>
+                    <td>@item.Price</td>
+                    <td>@item.TotalPrice</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="grand-total">
+        <strong>Grand Total:</strong> @Model.grandTotal
+    </div>
+</div>
 
 
 
@@ -109,9 +157,7 @@
 
 
 
-
-
- @model Invoice.View_Models.InvoiceVM
+@* @model Invoice.View_Models.InvoiceVM
 @{
    
 }
@@ -130,8 +176,10 @@
         <tr>
             <th>Description</th>
             <th>Quantity</th>
-            <th>Item Discount</th>
-            <th>Price</th>
+            <th>Item Discount(%)</th>
+            <th>Unit Price</th>
+            <th>Total Price</th>
+            <th>Grand Total</th>
         </tr>
     </thead>
     <tbody>
@@ -142,181 +190,10 @@
                 <td>@item.Quantity</td>
                 <td>@item.ItemDiscount</td>
                 <td>@item.Price</td>
+                <td>@item.TotalPrice</td>
+                <td>@Model.grandTotal</td>
             </tr>
         }
     </tbody>
-</table>
+</table> *@
  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@* @model Invoice.View_Models.InvoiceVM
-@{
-    Layout = null;
-}
-
-
-
-<header>
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="~/css/all.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="~/css/invoice.min.css">
-</header>
-
-
-
-    <div class="wrapper">
-        <!-- Main content -->
-        <section class="invoice">
-            <!-- title row -->
-            <div class="row">
-                <div class="col-12">
-                    <h2 class="page-header">
-                        <i class="fas fa-globe"></i> FiroTech Buiness and Tech Solutions
-                        <small class="float-right">Date: </small>
-                    </h2>
-                </div>
-                <!-- /.col -->
-            </div>
-            <!-- info row -->
-            <div class="row invoice-info">
-                <div class="col-sm-4 invoice-col">
-                    From
-                    <address>
-                        <strong>FiroTech Buiness and Tech Solutions</strong><br>
-                        795 Folsom Ave, Suite 600<br>
-                        San Francisco, CA 94107<br>
-                        Phone: (804) 123-5432<br>
-                        Email: info@almasaeedstudio.com
-                    </address>
-                </div>
-                <!-- /.col -->
-                <div class="col-sm-4 invoice-col">
-                    To
-                    <address>
-                        <strong>    </strong><br>
-                        Address:   <br />
-                        Phone: (555) 539-1037<br>
-                        Email: john.doe@example.com
-                    </address>
-                </div>
-                <!-- /.col -->
-                <div class="col-sm-4 invoice-col">
-                    <b>Invoice: #007612</b><br>
-                </div>
-                <!-- /.col -->
-            </div>
-            <!-- /.row -->
-            <!-- Table row -->
-            <div class="row">
-                <div class="col-12 table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Qty</th>
-                                <th>Product</th>
-                                <th>Serial #</th>
-                                <th>Description</th>
-                                <th>Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Call of Duty</td>
-                                <td>455-981-221</td>
-                                <td>El snort testosterone trophy driving gloves handsome</td>
-                                <td>$64.50</td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>Need for Speed IV</td>
-                                <td>247-925-726</td>
-                                <td>Wes Anderson umami biodiesel</td>
-                                <td>$50.00</td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>Monsters DVD</td>
-                                <td>735-845-642</td>
-                                <td>Terry Richardson helvetica tousled street art master</td>
-                                <td>$10.70</td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>Grown Ups Blue Ray</td>
-                                <td>422-568-642</td>
-                                <td>Tousled lomo letterpress</td>
-                                <td>$25.99</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <!-- /.col -->
-            </div>
-            <!-- /.row -->
-
-            <div class="row">
-                
-                <!-- /.col -->
-                <div class="col-6">
-                    <p class="lead">Amount Due 2/22/2014</p>
-
-                    <div class="table-responsive">
-                        <table class="table">
-                            <tr>
-                                <th style="width:50%">Subtotal:</th>
-                                <td>$250.30</td>
-                            </tr>
-                            <tr>
-                                <th>Tax (9.3%)</th>
-                                <td>$10.34</td>
-                            </tr>
-                            <tr>
-                                <th>Shipping:</th>
-                                <td>$5.80</td>
-                            </tr>
-                            <tr>
-                                <th>Total:</th>
-                                <td>$265.24</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-                <!-- /.col -->
-            </div>
-            <!-- /.row -->
-        </section>
-        <!-- /.content -->
-    </div>
-    <!-- ./wrapper -->
-    <!-- Page specific script -->
-    <script>
-        window.addEventListener("load", window.print());
-    </script>
-
-
- *@
