@@ -77,6 +77,7 @@ namespace Invoice.Controllers
                 InvoiceItems.Price = item.Price;
                 InvoiceItems.Quantity = item.Quantity;
                 InvoiceItems.ItemDiscount = item.ItemDiscount;
+                InvoiceItems.discountType = item.discountType;
                 InvoiceItems.TotalPrice = item.TotalPrice;
                 InvoiceItems.Invoice_ID = InvoiceId;
                 InvoiceItems.Customer_Id = customerId;
@@ -170,7 +171,10 @@ namespace Invoice.Controllers
 
                 if (model.IsPrint)
                 {
-                    
+
+
+                    HttpContext.Session.Remove("InvoiceModel");
+
                     HttpContext.Session.SetString("InvoiceModel", JsonConvert.SerializeObject(model));
 
                     

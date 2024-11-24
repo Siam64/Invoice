@@ -293,7 +293,7 @@
 
         function clearInputFields() {
             document.querySelector('input[name="Description"]').value = '';
-            document.querySelector('input[name="Quantity"]').value = '';
+            document.querySelector('input[name="Quantity"]').value = '1';
             document.querySelector('input[name="UnitPrice"]').value = '';
             document.querySelector('input[name="Discount"]').value = '';
             document.querySelector('input[name="TotalPrice"]').value = '';
@@ -376,7 +376,8 @@
                         TotalPrice: item.totalPrice,
                         Description: item.description,
                         Quantity: item.quantity,
-                        ItemDiscount: item.discount,
+                        ItemDiscount: item.discountValue,
+                        discountType: item.discountType,
                         Price: item.unitPrice
                         
                     }))
