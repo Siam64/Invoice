@@ -21,9 +21,10 @@
 
     public static class CompanyAddress
     {
-        public const string Address = "Eastern Housing, Uttara Sector 4, Dhaka";
-        public const string Phone = "0156565654";
-        public const string Email = "firotechbd@firotech.com";
+        public const string Company = "FiroTech";
+        public const string Address = "Uttara Eastern City, Uttara, Dhaka-1230";
+        public const string Phone = "01730277343";
+        public const string Email = "sales@firotechbd.com";
     }
 
    
