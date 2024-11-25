@@ -28,7 +28,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="Phone">Phone<sup><span>*</span></sup></label>
+                                    <label for="Phone">Phone<span>*</span></label>
                                     <input type="text" class="form-control" id="Phone" autocomplete="off" placeholder="Enter Phone Number" required>
                                     <div id="suggestions" style="position: absolute; z-index: 1000; background: white; border: 1px solid #ccc; display: none;"></div>
                                 </div>
@@ -90,15 +90,15 @@
                     <div class="card-body">
                         <div class="row mb-3 align-items-end">
                             <div class="col-md-8">
-                                <label>Product Description</label>
+                                <label>Product Description<span>*</span></label>
                                 <input name="Description" class="form-control" placeholder="Add Product Description" />
                             </div>
                             <div class="col-md-1">
-                                <label>Quantity</label>
+                                <label>Quantity<span>*</span></label>
                                 <input name="Quantity" type="number" value="1" class="form-control" min="0" placeholder="" />
                             </div>
                             <div class="col-md-1">
-                                <label>Unit Price</label>
+                                <label>Unit Price<span>*</span></label>
                                 <input name="UnitPrice" type="number" class="form-control" min="0" placeholder="" />
                             </div>
                             <div class="col-md-1">
@@ -221,7 +221,7 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="paymentMethod" id="rocketPayment" value="Rocket">
                                         <label class="form-check-label" for="rocketPayment">
-                                            @Invoice.Helper.Payment.Nogod
+                                            @Invoice.Helper.Payment.Rocket
                                         </label>
                                     </div>
                                 </div>
@@ -269,7 +269,16 @@ auto refference and other necessary logics*@
 
             // Validate inputs
             if (!description || !quantity || !unitPrice) {
-                alert('Please fill in all required fields');
+                       Swal.fire({
+                            position: "top-end",
+                            icon: "warning",
+                            title: "Please Fill Description, price and quantity",
+                            timer: 1500,
+                            showConfirmButton: false,
+                            customClass: {
+                                popup: 'small-alert'
+                            }
+                        });
                 return;
             }
 
@@ -435,7 +444,7 @@ auto refference and other necessary logics*@
     @* this script handels the invoice saving and printing 
     It sends all data to the controller and also Opens a new tab where it can be Printed*@
     <script>
-                $(document).ready(function () {
+             $(document).ready(function () {
             // Function to collect the invoice data dynamically when the button is clicked
             function getInvoiceData(isPrint = false) {
                 var selectedPaymentMethod = $('input[name="paymentMethod"]:checked').val();
@@ -481,6 +490,27 @@ auto refference and other necessary logics*@
             if (!phone || phone.trim() === '') {
                 errorMessages.push("Phone number is required");
                 isValid = false;
+            }
+
+            if (!items || items.length === 0) {
+            errorMessages.push("Invoice items cannot be empty");
+            isValid = false;
+        } else {
+            // Check if any of the invoice item fields are missing or invalid
+            items.forEach((item, index) => {
+                if (!item.description || item.description.trim() === '') {
+                    errorMessages.push(`Description is required for item ${index + 1}`);
+                    isValid = false;
+                }
+                if (!item.quantity || item.quantity <= 0) {
+                    errorMessages.push(`Quantity must be greater than 0 for item ${index + 1}`);
+                    isValid = false;
+                }
+                if (!item.unitPrice || item.unitPrice <= 0) {
+                    errorMessages.push(`Price must be greater than 0 for item ${index + 1}`);
+                    isValid = false;
+                }
+            });
             }
 
             if (!isValid) {
@@ -571,9 +601,6 @@ auto refference and other necessary logics*@
         });
 
     </script>
-
-
-
 
 
     @* This script is responsible for clearing the form on saving and printing *@
