@@ -28,6 +28,7 @@
         public double grandTotal { get; set; }
         public double ManualDiscount { get; set; }
         public string PaymentMethod { get; set; }
+        public Double Total_Discount { get; set; }
         public double Due { get; set; }
         public double Paid { get; set; }
         public double Price { get; set; }

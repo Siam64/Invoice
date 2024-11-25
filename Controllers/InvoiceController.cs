@@ -22,14 +22,15 @@ namespace Invoice.Controllers
         {
             _context = context;
         }
-        //
+       
+
+
+
         [Route("Create")]
         public IActionResult Index()
         {
             return View();
         }
-
-        //git push
 
 
         [HttpGet]
@@ -112,8 +113,6 @@ namespace Invoice.Controllers
 
             return (data.Id);
         }
-
-
 
 
         [HttpPost]

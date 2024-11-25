@@ -72,7 +72,6 @@
                     <div class="form-group">
                         <label for="Date">Date</label>
                             <input type="date" class="form-control" id="Date" value="@DateTime.Today.ToString("yyyy-MM-dd")">
-
                     </div>
                 </div>
                 </div>
@@ -121,7 +120,6 @@
                 </div>
             </div>
         </div>
-
     </form>
     <div class="row mt-4">
         <div class="col-12 px-4">
@@ -246,8 +244,8 @@
     </div>
 </div>
 
-@* this is the Javascript part responsible for Calculation, data handling, auto refference and other necessary scripts*@
- 
+@*This Javascript part is responsible for Calculation, data handling, clearing the page,
+auto refference and other necessary logics*@
 @section Scripts {
 
     <script src="~/js/jquery-3.6.0.min.js"></script>
@@ -433,9 +431,11 @@
         }
     </script>
 
+
+
+
     @* this script handels the invoice saving and printing 
-        It sends all data to the controller and also Opens a new tab where it can be Printed
-    *@
+    It sends all data to the controller and also Opens a new tab where it can be Printed*@
     <script>
                 $(document).ready(function () {
             // Function to collect the invoice data dynamically when the button is clicked
@@ -449,6 +449,7 @@
                     Address: $('#Address').val(),
                     GrandTotal: $('#grandTotal').val(),
                     InvoiceID: $('#Invoice_ID').val(),
+                    Total_Discount: $('#totalDiscount').val(),
                     Due: $('#Due').val(),
                     Paid: $('#Paid').val(),
                     Date: $('#Date').val(),
@@ -573,6 +574,11 @@
 
     </script>
 
+
+
+
+
+    @* This script is responsible for clearing the form on saving and printing *@
     <script>
          var clearForm = function () {
              // Reset form
@@ -600,9 +606,11 @@
     </script>
 
 
+
+
+
     @* this script handels auto complete and refference from database for phone
-       then populates other fields accroding to the Phone Number
-    *@
+    then populates other fields accroding to the Phone Number*@
     <script>
         $(document).ready(function () {
             $('#Phone').on('input', function () {
