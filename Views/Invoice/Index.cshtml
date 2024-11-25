@@ -95,25 +95,23 @@
                             </div>
                             <div class="col-md-1">
                                 <label>Quantity</label>
-                                <input name="Quantity" type="number" value="1" class="form-control" placeholder="" />
+                                <input name="Quantity" type="number" value="1" class="form-control" min="0" placeholder="" />
                             </div>
                             <div class="col-md-1">
                                 <label>Unit Price</label>
-                                <input name="UnitPrice" type="number" class="form-control" placeholder="" />
+                                <input name="UnitPrice" type="number" class="form-control" min="0" placeholder="" />
                             </div>
                             <div class="col-md-1">
-                                <label>Discount</label>
-                                <div class="input-group">
-                                    <input name="Discount" type="number" class="form-control" placeholder="" />
-                                    <select name="DiscountType" class="form-select form-select-sm p-0" style="width: 40px; flex: 0 0 auto;">
-                                        <option value="@Invoice.Helper.DiscountType.Percent">@Invoice.Helper.DiscountType.Percent</option>
-                                        <option value="@Invoice.Helper.DiscountType.Ammount">@Invoice.Helper.DiscountType.Ammount</option>
-                                    </select>
-                                </div>
+                                <select name="DiscountType" class="form-select form-select-sm p-0" style=" flex: 0 0 auto;">
+                                    <option value="@Invoice.Helper.DiscountType.Percent">Discount @Invoice.Helper.DiscountType.Percent</option>
+                                    <option value="@Invoice.Helper.DiscountType.Ammount">Discount @Invoice.Helper.DiscountType.Ammount</option>
+                                </select>
+
+                                <input name="Discount" type="number" min="0" class="form-control" placeholder="" />
                             </div>
                             <div class="col-md-1">
                                 <label>Total Price</label>
-                                <input name="TotalPrice" id="TotalPrice" type="number" class="form-control" placeholder="0.00" readonly />
+                                <input name="TotalPrice" id="TotalPrice" type="number" class="form-control" placeholder="0" readonly />
                             </div>
                         </div>
                     </div>

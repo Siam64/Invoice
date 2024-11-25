@@ -21,4 +21,5 @@ public class InvoiceContext : IdentityDbContext<IdentityUser>
     public DbSet<Data_Models.Customer> Customer { get; set; } = default!;
     public DbSet<Data_Models.Invoice> Invoice { get; set; } = default!;
     public DbSet<Data_Models.Invoice_Item> InvoiceItems { get; set; } = default!;
+
 }

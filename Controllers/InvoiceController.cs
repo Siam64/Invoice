@@ -11,6 +11,7 @@ using System.Net;
 using System.Security.Claims;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace Invoice.Controllers
 {
@@ -206,6 +207,50 @@ namespace Invoice.Controllers
 
 
             return View(model);
+        }
+
+
+        [HttpGet]
+        public IActionResult RePrint(int id)
+        {
+            var InvoiceData = _context.Invoice.Where(x=>x.Id == id).FirstOrDefault();
+            var InvoiceItems = _context.InvoiceItems.Where(x=>x.Invoice_ID == InvoiceData.Invoice_ID).ToList();
+            var Customer = _context.Customer.Where(x=>x.Id == InvoiceData.Customer_Id).FirstOrDefault();
+            var user = _context.Users.FirstOrDefault(x => x.Id == InvoiceData.PrintedBy.ToString());
+            string PrintedBy = user?.UserName ?? "Unknown";
+
+
+
+            InvoiceVM model = new InvoiceVM();
+            model.InvoiceID = InvoiceData.Invoice_ID;
+            model.CustomerId = InvoiceData.Customer_Id;
+            model.Date = InvoiceData.Date;
+            model.ManualDiscount = InvoiceData.ManualDiscount;
+            model.grandTotal = InvoiceData.grandTotal;
+            model.Due = InvoiceData.Due;
+            model.Paid = InvoiceData.Paid;  
+            model.PaymentMethod = InvoiceData.PaymentMethod;
+            model.CreateAt = InvoiceData.CreateAt;
+            model.CreateBy = InvoiceData.CreateBy;
+            model.PrintedBy = PrintedBy;
+
+            model.Name = Customer.Name;
+            model.Phone = Customer.Phone;
+            model.Address = Customer.Address;
+
+
+            model.InvoiceItems = InvoiceItems.Select(item => new InvoiceItemVM
+            {
+                Description = item.Description,
+                Price = item.Price,
+                Quantity = item.Quantity,
+                ItemDiscount = item.ItemDiscount,
+                discountType = item.discountType,
+                TotalPrice = item.TotalPrice
+            }).ToList();
+
+            return PartialView("InvoicePrint", model);
+                //return View(model);
         }
     }
 }
