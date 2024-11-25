@@ -1,5 +1,13 @@
 ﻿namespace Invoice.View_Models
 {
+    public static class PaymentMethod
+    {
+        public const string Cash = "Cash";
+        public const string BankCard = "BankCard";
+        public const string Bkash = "Bkash";
+        public const string Nogod = "Nogod";
+        public const string Rocket = "Rocket";
+    }
     public class InvoiceVM
     {
         public int Id { get; set; }
@@ -19,6 +27,9 @@
         public int Qunatity { get; set; }
         public double grandTotal { get; set; }
         public double ManualDiscount { get; set; }
+        public string PaymentMethod { get; set; }
+        public double Due { get; set; }
+        public double Paid { get; set; }
         public double Price { get; set; }
         public List<InvoiceItemVM> InvoiceItems { get; set; }
 

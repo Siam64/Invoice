@@ -1,5 +1,13 @@
 ﻿namespace Invoice.Data_Models
 {
+    public static class PaymentMethod
+    {
+        public const string Cash = "Cash";
+        public const string BankCard = "BankCard";
+        public const string Bkash = "Bkash";
+        public const string Nogod = "Nogod";
+        public const string Rocket = "Rocket";
+    }
     public class Customer
     {
         public int Id { get; set; }
@@ -21,6 +29,9 @@
         public DateTime Date { get; set; }
         public double ManualDiscount { get; set; }
         public double grandTotal { get; set; }
+        public string PaymentMethod { get; set; }
+        public double Due { get; set; }
+        public double Paid { get; set; }
         public Guid CreateBy { get; set; }
         public DateTime CreateAt { get; set; }
         

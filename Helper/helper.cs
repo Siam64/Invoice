@@ -4,6 +4,14 @@
     {
     }
 
+    public static class Payment
+    {
+        public const string Cash = "Cash";
+        public const string BankCard = "Bank/Card";
+        public const string Bkash = "Bkash";
+        public const string Nogod = "Nogod";
+        public const string Rocket = "Rocket";
+    }
     public static class PopupMessage
     {
         public const string success = "Well done";

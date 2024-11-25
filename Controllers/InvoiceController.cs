@@ -149,6 +149,9 @@ namespace Invoice.Controllers
                 invoiceData.Date= model.Date;
                 invoiceData.Invoice_ID = model.InvoiceID;
                 invoiceData.grandTotal = model.grandTotal;
+                invoiceData.Due = model.Due;
+                invoiceData.Paid = model.Paid;
+                invoiceData.PaymentMethod = model.PaymentMethod;
 
                 if (invoiceData != null)
                 {

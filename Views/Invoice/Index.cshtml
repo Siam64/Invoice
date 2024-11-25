@@ -3,6 +3,11 @@
 <header>
     <link rel="stylesheet" href="~/css/Icon.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <style>
+        span{
+            color: red;
+        }
+    </style>
 </header>
 
 <div class="col-md-12 ">
@@ -23,7 +28,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="Phone">Phone</label>
+                                    <label for="Phone">Phone<sup><span>*</span></sup></label>
                                     <input type="text" class="form-control" id="Phone" autocomplete="off" placeholder="Enter Phone Number" required>
                                     <div id="suggestions" style="position: absolute; z-index: 1000; background: white; border: 1px solid #ccc; display: none;"></div>
                                 </div>
@@ -149,7 +154,7 @@
                 <div class="col-md-3">
                     <div class="card shadow mb-4">
                         <div class="card-header bg-info">
-                            <h6 class="mb-0  text-white">Order Summary</h6>
+                            <h6 class="mb-0 text-white">Order Summary</h6>
                         </div>
                         <div class="card-body">
                             <div class="form-group mb-2">
@@ -178,6 +183,53 @@
                                     <input type="text" id="grandTotal" class="form-control text-end fw-bold" placeholder="0.00" readonly style="max-width: 120px;">
                                 </div>
                             </div>
+                            <div class="form-group mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label for="Due" class="fw-bold mb-0">Due(Ammount):</label>
+                                    <input type="text" name="Due" id="Due" class="form-control text-end" style="max-width: 120px;">
+                                </div>
+                            </div>
+                            <div class="form-group mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label for="Paid" class="fw-bold mb-0">Paid:</label>
+                                    <input type="text" name="Paid" id="Paid" class="form-control text-end fw-bold" placeholder="0.00" readonly style="max-width: 120px;">
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="fw-bold mb-2">Payment Method:<sup><span>*</span></sup></label>
+                                <div class="d-flex flex-wrap gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="cashPayment" value="Cash">
+                                        <label class="form-check-label" for="cashPayment">
+                                            @Invoice.Helper.Payment.Cash
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="bankPayment" value="BankCard">
+                                        <label class="form-check-label" for="bankPayment">
+                                            @Invoice.Helper.Payment.BankCard
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="bkashPayment" value="Bkash">
+                                        <label class="form-check-label" for="bkashPayment">
+                                            @Invoice.Helper.Payment.Bkash
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="nogodPayment" value="Nogod">
+                                        <label class="form-check-label" for="nogodPayment">
+                                            @Invoice.Helper.Payment.Nogod
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="rocketPayment" value="Rocket">
+                                        <label class="form-check-label" for="rocketPayment">
+                                            @Invoice.Helper.Payment.Nogod
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="mt-3 d-flex justify-content-center">
                                 <button type="button" id="SaveButton" class="btn btn-success me-2 flex-grow-1">
                                     Save
@@ -194,7 +246,8 @@
     </div>
 </div>
 
-
+@* this is the Javascript part responsible for Calculation, data handling, auto refference and other necessary scripts*@
+ 
 @section Scripts {
 
     <script src="~/js/jquery-3.6.0.min.js"></script>
@@ -202,9 +255,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     @* this script is for continious adding items in order list table and clearing the invoice item fields
-    its calculating the items price and discount in %
+    its calculating the items price and discount in % and direct ammount both
     its also calculating realtime with eventlistener
-    it also calculating the manual discount and shows the final price *@
+    it also calculating the manual discount and shows the final price
+    Then its taking Due ammount and calculating Paid Ammount*@
     <script>
                // Initialize arrays and variables
         let items = [];
@@ -299,7 +353,7 @@
             document.querySelector('input[name="TotalPrice"]').value = '';
         }
 
-        function updateOrderSummary() {
+            function updateOrderSummary() {
             // Calculate subtotal
             const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
 
@@ -312,11 +366,19 @@
             // Calculate grand total
             const grandTotal = subtotal - itemDiscounts - manualDiscount;
 
+            // Get Due amount entered by user
+            const Due = parseFloat(document.getElementById('Due').value) || 0;
+
+            // Calculate Paid amount (it's what's left after subtracting the due amount)
+            const Paid = Math.max(0, grandTotal - Due);
+
             // Update display fields
             document.getElementById('subtotal').value = subtotal.toFixed(2);
             document.getElementById('totalDiscount').value = (itemDiscounts + manualDiscount).toFixed(2);
             document.getElementById('grandTotal').value = Math.max(0, grandTotal).toFixed(2);
+            document.getElementById('Paid').value = Math.max(0, Paid).toFixed(2);
         }
+
 
         // Add event listeners for real-time total calculation
         document.querySelector('input[name="Quantity"]').addEventListener('input', calculateLineTotal);
@@ -340,6 +402,23 @@
             updateOrderSummary();
         });
 
+        // Add event listener for Due field with same behavior as ManualDiscount
+        document.getElementById('Due').addEventListener('input', function(e) {
+            // Sanitize input to allow only numbers and decimal point
+            let value = e.target.value.replace(/[^\d.]/g, '');
+
+            // Ensure only one decimal point
+            const parts = value.split('.');
+            if (parts.length > 2) value = parts[0] + '.' + parts.slice(1).join('');
+
+            // Limit to 2 decimal places
+            if (parts.length > 1) value = parts[0] + '.' + parts[1].slice(0, 2);
+
+            //Sending to function to calculation
+            e.target.value = value;
+            updateOrderSummary();
+        });
+
         function calculateLineTotal() {
             const quantity = parseFloat(document.querySelector('input[name="Quantity"]').value) || 0;
             const unitPrice = parseFloat(document.querySelector('input[name="UnitPrice"]').value) || 0;
@@ -354,14 +433,15 @@
         }
     </script>
 
-
-
-
-    @* this script handels the invoice saving and printing *@
+    @* this script handels the invoice saving and printing 
+        It sends all data to the controller and also Opens a new tab where it can be Printed
+    *@
     <script>
-        $(document).ready(function () {
+                $(document).ready(function () {
             // Function to collect the invoice data dynamically when the button is clicked
             function getInvoiceData(isPrint = false) {
+                var selectedPaymentMethod = $('input[name="paymentMethod"]:checked').val();
+
                 return {
                     CustomerId: $('#CustomerId').val(),
                     Name: $('#Name').val(),
@@ -369,9 +449,12 @@
                     Address: $('#Address').val(),
                     GrandTotal: $('#grandTotal').val(),
                     InvoiceID: $('#Invoice_ID').val(),
+                    Due: $('#Due').val(),
+                    Paid: $('#Paid').val(),
                     Date: $('#Date').val(),
                     ManualDiscount: $('#ManualDiscount').val(),
-                    IsPrint: isPrint,  // Dynamically add IsPrint field
+                    PaymentMethod: selectedPaymentMethod,
+                    IsPrint: isPrint,
                     InvoiceItems: items.map(item => ({
                         TotalPrice: item.totalPrice,
                         Description: item.description,
@@ -379,20 +462,56 @@
                         ItemDiscount: item.discountValue,
                         discountType: item.discountType,
                         Price: item.unitPrice
-                        
                     }))
                 };
             }
-            
+
+            // Function to validate form
+            function validateForm() {
+            var isValid = true;
+            var errorMessages = [];
+
+            // Check payment method
+            if (!$('input[name="paymentMethod"]:checked').val()) {
+                errorMessages.push("Please select a payment method");
+                isValid = false;
+            }
+
+            // Check phone number
+            var phone = $('#Phone').val();
+            if (!phone || phone.trim() === '') {
+                errorMessages.push("Phone number is required");
+                isValid = false;
+            }
+
+            if (!isValid) {
+                Swal.fire({
+                    position: "top-end",
+                    icon: "warning",
+                    title: "Required Fields Missing",
+                    html: errorMessages.join('<br>'),
+                    timer: 2000,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: 'small-alert'
+                    }
+                });
+                return false;
+            }
+            return true;
+        }
+
+       
             // Handle Save Button Click
             $("#SaveButton").click(function (event) {
                 event.preventDefault();
-                
+
+                if (!validateForm()) {
+                    return;
+                }
 
                 var invoiceData = getInvoiceData(false);
                 console.log("Invoice Data:", invoiceData);
-
-
                 $.ajax({
                     url: '@Url.Action("Index", "Invoice")',
                     type: 'POST',
@@ -408,23 +527,9 @@
                                 popup: 'small-alert'
                             }
                         });
-                        //resetting the form
-                        $('#invoiceForm')[0].reset();
 
-                        //refreshing invoice id
-                        var newInvoiceId = new Date().toISOString().replace(/[-T:.Z]/g, "").slice(0, 14);
-                        $("#Invoice_ID").val(newInvoiceId);
-
-                        //resetting order list
-                        items = [];
-                        updateTable();
-
-                        //resetting order summary
-                        document.getElementById('subtotal').value = "0.00";
-                        document.getElementById('totalDiscount').value = "0.00";
-                        document.getElementById('ManualDiscount').value = "";
-                        document.getElementById('grandTotal').value = "0.00";
-                        updateOrderSummary();
+                        clearForm();
+                       
                     },
                     error: function () {
                         Swal.fire({
@@ -445,8 +550,11 @@
             $("#PrintButton").click(function (event) {
                 event.preventDefault();
 
-                var invoiceData = getInvoiceData(true);
+                if (!validateForm()) {
+                    return;
+                }
 
+                var invoiceData = getInvoiceData(true);
                 $.ajax({
                     url: '@Url.Action("Index", "Invoice")',
                     type: 'POST',
@@ -454,6 +562,7 @@
                     success: function () {
                        window.open('@Url.Action("InvoicePrint", "Invoice")', '_blank');
 
+                       clearForm();
                     },
                     error: function () {
                         alert("Failed to print invoice.");
@@ -464,12 +573,41 @@
 
     </script>
 
+    <script>
+         var clearForm = function () {
+             // Reset form
+                        $('#invoiceForm')[0].reset();
+                        // Reset payment method radio buttons
+                        $('input[name="paymentMethod"]').prop('checked', false);
 
-    @* this script handels auto complete and refference from database for phone *@
+                        //refreshing invoice id
+                        var newInvoiceId = new Date().toISOString().replace(/[-T:.Z]/g, "").slice(0, 14);
+                        $("#Invoice_ID").val(newInvoiceId);
+
+                        //resetting order list
+                        items = [];
+                        updateTable();
+
+                        //resetting order summary
+                        document.getElementById('subtotal').value = "0.00";
+                        document.getElementById('totalDiscount').value = "0.00";
+                        document.getElementById('ManualDiscount').value = "";
+                        document.getElementById('grandTotal').value = "0.00";
+                        document.getElementById('Due').value = "0.00";
+                        document.getElementById('Paid').value = "0.00";
+                        updateOrderSummary();
+        }
+    </script>
+
+
+    @* this script handels auto complete and refference from database for phone
+       then populates other fields accroding to the Phone Number
+    *@
     <script>
         $(document).ready(function () {
             $('#Phone').on('input', function () {
                 let phoneNumber = $(this).val();
+                document.getElementById('CustomerId').value = "0";
 
                 if (phoneNumber.length >= 3) {
                     $.ajax({
