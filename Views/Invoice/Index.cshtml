@@ -609,6 +609,8 @@ auto refference and other necessary logics*@
     </script>
 
 
+
+
     @* This script is responsible for clearing the form on saving and printing *@
     <script>
          var clearForm = function () {
@@ -630,12 +632,11 @@ auto refference and other necessary logics*@
                         document.getElementById('totalDiscount').value = "0.00";
                         document.getElementById('ManualDiscount').value = "";
                         document.getElementById('grandTotal').value = "0.00";
-                        document.getElementById('Due').value = "0.00";
+                        document.getElementById('Due').value = "";
                         document.getElementById('Paid').value = "0.00";
                         updateOrderSummary();
         }
     </script>
-
 
 
 

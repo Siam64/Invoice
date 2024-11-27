@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> UserManager
 
+
 @{
     ViewData["Title"] = "Invoice";
     Layout = null;
@@ -119,13 +120,17 @@
                                 <tr>
                                     <td class="col-5">@item.Description</td>
                                     <td class="col-1 text-end">@item.Quantity</td>
-                                    <td class="col-2 text-end">@item.Price @Invoice.Helper.DiscountType.Currency</td>
-                                    <td class="col-2 text-end">@item.ItemDiscount @item.discountType</td>
-                                    <td class="col-2 text-end">@item.TotalPrice @Invoice.Helper.DiscountType.Currency</td>
+                                    <td class="col-2 text-end">@item.Price.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @Invoice.Helper.DiscountType.Currency</td>
+                                    <td class="col-2 text-end">@item.ItemDiscount.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @item.discountType</td>
+                                    <td class="col-2 text-end">@item.TotalPrice.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @Invoice.Helper.DiscountType.Currency</td>
                                 </tr>
                             }
                         </tbody>
                     </table>
+
+                    <div>
+                        Total Ammount In Word: <strong>@Invoice.Helper.NumberToWords.ConvertToWords(Model.grandTotal) @Invoice.Helper.DiscountType.Only</strong>
+                    </div>
                     <div class="row">
                         <div class="col-6 p-5">
                             <p class="lead">Payment Method: <strong> @Model.PaymentMethod </strong></p>
@@ -177,20 +182,20 @@
                                 <table class="table">
                                     <tbody>
                                         <tr>
-                                            <th style="width:50%">Total Discount:</th>
-                                            <td> @Model.Total_Discount @Invoice.Helper.DiscountType.Currency</td>
+                                            <th>Total Ammount:</th>
+                                            <td>@Model.grandTotal.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @Invoice.Helper.DiscountType.Currency</td>
                                         </tr>
                                         <tr>
-                                            <th>Total Ammount:</th>
-                                            <td>@Model.grandTotal @Invoice.Helper.DiscountType.Currency</td>
+                                            <th style="width:50%">Total Discount:</th>
+                                            <td> @Model.Total_Discount.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @Invoice.Helper.DiscountType.Currency</td>
                                         </tr>
                                         <tr>
                                             <th>Total Paid:</th>
-                                            <td>@Model.Paid @Invoice.Helper.DiscountType.Currency</td>
+                                            <td>@Model.Paid.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @Invoice.Helper.DiscountType.Currency</td>
                                         </tr>
                                         <tr>
                                             <th>Due Ammount:</th>
-                                            <td>@Model.Due @Invoice.Helper.DiscountType.Currency</td>
+                                            <td>@Model.Due.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @Invoice.Helper.DiscountType.Currency</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -199,10 +204,9 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section><br />
         <div class="signature-section col-3 float-right text-center">
             <div class="signature-line"></div>
-            
             <div>Signature</div>
         </div>
     </div>
