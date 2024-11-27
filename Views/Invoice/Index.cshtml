@@ -18,10 +18,10 @@
     </div>  *@
     <form id="invoiceForm">
         <div class="row">
-            <div class="col-md-7  ps-4">
+            <div class="col-md-7 ps-4">
                 <div class="card">
                     <div class="card-header bg-info">
-                        <h6 class="mb-0  text-white">Customer Details</h6>
+                        <h6 class="mb-0 text-white">Customer Details</h6>
                     </div>
                     <div class="card-body">
                        
@@ -195,31 +195,37 @@
                                 <label class="fw-bold mb-2">Payment Method:<sup><span>*</span></sup></label>
                                 <div class="d-flex flex-wrap gap-3">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="paymentMethod" id="cashPayment" value="Cash">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="cashPayment" value="@Invoice.Helper.Payment.Cash">
                                         <label class="form-check-label" for="cashPayment">
                                             @Invoice.Helper.Payment.Cash
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="paymentMethod" id="bankPayment" value="BankCard">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="cardPayment" value="@Invoice.Helper.Payment.Card">
                                         <label class="form-check-label" for="bankPayment">
-                                            @Invoice.Helper.Payment.BankCard
+                                            @Invoice.Helper.Payment.Card
+                                        </label>
+                                    </div> 
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="bankPayment" value=" @Invoice.Helper.Payment.Bank">
+                                        <label class="form-check-label" for="bankPayment">
+                                            @Invoice.Helper.Payment.Bank
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="paymentMethod" id="bkashPayment" value="Bkash">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="bkashPayment" value="@Invoice.Helper.Payment.Bkash">
                                         <label class="form-check-label" for="bkashPayment">
                                             @Invoice.Helper.Payment.Bkash
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="paymentMethod" id="nogodPayment" value="Nogod">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="nogodPayment" value="@Invoice.Helper.Payment.Nogod">
                                         <label class="form-check-label" for="nogodPayment">
                                             @Invoice.Helper.Payment.Nogod
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="paymentMethod" id="rocketPayment" value="Rocket">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="rocketPayment" value=" @Invoice.Helper.Payment.Rocket">
                                         <label class="form-check-label" for="rocketPayment">
                                             @Invoice.Helper.Payment.Rocket
                                         </label>
@@ -637,80 +643,90 @@ auto refference and other necessary logics*@
     @* this script handels auto complete and refference from database for phone
     then populates other fields accroding to the Phone Number*@
     <script>
-        $(document).ready(function () {
-            $('#Phone').on('input', function () {
-                let phoneNumber = $(this).val();
-                document.getElementById('CustomerId').value = "0";
+               $(document).ready(function () {
+            // Debounce function to limit API calls
+            function debounce(func, delay) {
+                let timeoutId;
+                return function (...args) {
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => func.apply(this, args), delay);
+                };
+            }
 
-                if (phoneNumber.length >= 3) {
-                    $.ajax({
-                        url: '/GetPhoneSuggestions',
-                        type: 'GET',
-                        data: { phone: phoneNumber },
-                        success: function (data) {
-                            console.log(data);
-                            let suggestionsDiv = $('#suggestions');
-                            suggestionsDiv.empty().hide();
-
-                            if (data.success && data.references.length) {
-                                data.references.forEach(function (item) {
-                                    suggestionsDiv.append(`
-                                        <div class="suggestion-item"
-                                             style="padding: 5px; cursor: pointer;"
-                                             data-id="${item.id}"
-                                             data-name="${item.name}"
-                                             data-phone="${item.phone}"
-                                             data-address="${item.address}">
-                                             ${item.name} - ${item.phone}
-                                        </div>
-                                    `);
-                                });
-                                suggestionsDiv.show();
-                            } else {
-                                suggestionsDiv.append(`<div style="padding: 5px;">No suggestions found</div>`);
-                                suggestionsDiv.show();
-                            }
-                        },
-                        error: function () {
-                            console.error('Error fetching phone suggestions.');
-                        }
-                    });
-                } else {
-                    $('#suggestions').hide();
-                }
-            });
-
-            // Handle click on suggestions
-            $(document).on('click', '.suggestion-item', function () {
-                var customerId = $(this).data('id');
-                var name = $(this).data('name');
-                var phone = $(this).data('phone');
-                var address = $(this).data('address');
-
-                // Fill the form fields with the selected suggestion
-                $('#CustomerId').val(customerId);
-                $('#Name').val(name);
-                $('#Phone').val(phone);
-                $('#Address').val(address);
-
-                // Hide the suggestions dropdown
+            // Function to handle suggestion population
+            function populateSuggestion(item) {
+                $('#CustomerId').val(item.id || '0');
+                $('#Name').val(item.name || '');
+                $('#Phone').val(item.phone || '');
+                $('#Address').val(item.address || '');
                 $('#suggestions').hide();
+            }
+
+            // Fetch phone suggestions with debounce
+            const fetchPhoneSuggestions = debounce(function(phoneNumber) {
+                if (phoneNumber.length < 3) {
+                    $('#suggestions').hide();
+                    return;
+                }
+
+                $.ajax({
+                    url: '/GetPhoneSuggestions',
+                    type: 'GET',
+                    data: { phone: phoneNumber },
+                    success: function (data) {
+                        const suggestionsDiv = $('#suggestions');
+                        suggestionsDiv.empty().hide();
+
+                        if (data.success && data.references && data.references.length) {
+                            data.references.forEach(function (item) {
+                                const suggestionItem = $(`
+                                    <div class="suggestion-item"
+                                         style="padding: 5px; cursor: pointer;"
+                                         data-id="${item.id}"
+                                         data-name="${item.name}"
+                                         data-phone="${item.phone}"
+                                         data-address="${item.address}">
+                                         ${item.name} - ${item.phone}
+                                    </div>
+                                `);
+
+                                suggestionItem.on('click', function() {
+                                    populateSuggestion({
+                                        id: $(this).data('id'),
+                                        name: $(this).data('name'),
+                                        phone: $(this).data('phone'),
+                                        address: $(this).data('address')
+                                    });
+                                });
+
+                                suggestionsDiv.append(suggestionItem);
+                            });
+                            suggestionsDiv.show();
+                        } else {
+                            suggestionsDiv.append(`<div style="padding: 5px;">No suggestions found</div>`);
+                            suggestionsDiv.show();
+                        }
+                    },
+                    error: function () {
+                        console.error('Error fetching phone suggestions.');
+                        $('#suggestions').hide();
+                    }
+                });
+            }, 300); // 300ms delay to reduce unnecessary API calls
+
+            // Phone input event handler
+            $('#Phone').on('input', function () {
+                const phoneNumber = $(this).val();
+                $('#CustomerId').val('0'); // Reset customer ID on input
+                fetchPhoneSuggestions(phoneNumber);
             });
 
-            // Hide suggestions when clicking outside the input or suggestion list
+            // Close suggestions when clicking outside
             $(document).on('click', function (e) {
-                if (!$(e.target).closest('#Phone').length && !$(e.target).closest('#suggestions').length) {
+                if (!$(e.target).closest('#Phone, #suggestions').length) {
                     $('#suggestions').hide();
                 }
             });
-
-            // Optionally, hide suggestions when focus is lost from the phone input field
-            $('#Phone').on('blur', function () {
-                setTimeout(function () {
-                    $('#suggestions').hide();
-                }, 200);  // Delay to allow click on suggestion item
-            });
-
         });
 
     </script>

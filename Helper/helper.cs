@@ -7,9 +7,10 @@
     public static class Payment
     {
         public const string Cash = "Cash";
-        public const string BankCard = "BankOrCard";
+        public const string Card = "Card";
+        public const string Bank = "Bank";
         public const string Bkash = "Bkash";
-        public const string Nogod = "Nogod";
+        public const string Nogod = "Nagad";
         public const string Rocket = "Rocket";
     }
     public static class PopupMessage

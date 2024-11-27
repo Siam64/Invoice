@@ -3,6 +3,7 @@
 @inject UserManager<IdentityUser> UserManager
 
 @{
+    ViewData["Title"] = "Invoice";
     Layout = null;
 }
 
@@ -41,21 +42,20 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin: 0 auto;
         }
-
-        .table {
-            width: 100%; 
-            table-layout: auto; 
+        
+        .table, .table th, .table td {
+            border-top: 2px solid #000; 
+            border-bottom: 2px solid #000; 
+            border-collapse: collapse; 
+            padding: 10px; 
+            box-shadow: none; 
+            margin: 0; 
         }
 
-            .table thead th, .table tbody td {
-                padding: 10px;
-                /* border: 1px solid #ddd;  */
-            }
-
-        .signature-container {
-            width: 200px;
-            margin-left: auto;
-            text-align: center;
+        .signature-line {
+            height: 2px; 
+            background-color: #000;
+            margin: 10px 0; 
         }
     </style>
 </head>
@@ -149,8 +149,12 @@
                                         <img src="~/img/mfs/cash.png" />
                                         break;
 
-                                    case @Invoice.Helper.Payment.BankCard:
-                                        <img src="~/img/mfs/bank.png" />
+                                    case @Invoice.Helper.Payment.Bank:
+                                        <img src="~/img/mfs/Bank.png" />
+                                        break;
+
+                                    case @Invoice.Helper.Payment.Card:
+                                        <img src="~/img/mfs/card.png" />
                                         break;
 
                                     default:
@@ -197,9 +201,9 @@
             </div>
         </section>
         <div class="signature-section col-3 float-right text-center">
-                <div class="signature-line"></div>
-                <hr />
-                <div>Signature</div>
+            <div class="signature-line"></div>
+            
+            <div>Signature</div>
         </div>
     </div>
 

@@ -3,7 +3,8 @@
     public static class PaymentMethod
     {
         public const string Cash = "Cash";
-        public const string BankCard = "BankCard";
+        public const string Bank = "Bank";
+        public const string Card = "Card";
         public const string Bkash = "Bkash";
         public const string Nogod = "Nogod";
         public const string Rocket = "Rocket";
