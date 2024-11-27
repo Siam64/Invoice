@@ -39,6 +39,8 @@
         public Guid CreateBy { get; set; }
         public DateTime CreateAt { get; set; }
     }
+
+
     public class InvoiceItemVM
     {
         public int Id { get; set; }

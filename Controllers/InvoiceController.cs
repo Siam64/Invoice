@@ -93,7 +93,7 @@ namespace Invoice.Controllers
             return Ok();
         }
 
-        //Change
+        
         //Customer Method for mapping
         public int InsertCustomer(int id, string Name, string phone, string address, Guid CrrUserGuid)
         {
@@ -213,6 +213,10 @@ namespace Invoice.Controllers
         [HttpGet]
         public IActionResult RePrint(int id)
         {
+            if (id < 0)
+            {
+                return NotFound();
+            }
             var InvoiceData = _context.Invoice.Where(x=>x.Id == id).FirstOrDefault();
             var InvoiceItems = _context.InvoiceItems.Where(x=>x.Invoice_ID == InvoiceData.Invoice_ID).ToList();
             var Customer = _context.Customer.Where(x=>x.Id == InvoiceData.Customer_Id).FirstOrDefault();
@@ -251,6 +255,25 @@ namespace Invoice.Controllers
 
             return PartialView("InvoicePrint", model);
                 //return View(model);
+        }
+
+
+        public IActionResult List()
+        {
+            var data = (from invoice in _context.Invoice
+                                     join customer in _context.Customer
+                                     on invoice.Customer_Id equals customer.Id
+                                    select new InvoiceVM
+                                    {
+                                         Id = invoice.Id,
+                                         InvoiceID = invoice.Invoice_ID,
+                                         grandTotal = invoice.grandTotal,
+                                         Paid = invoice.Paid,
+                                         Due = invoice.Due,
+                                         Name = customer.Name,
+                                         Phone = customer.Phone
+                                     }).ToList();
+            return View(data);
         }
     }
 }

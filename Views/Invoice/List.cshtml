@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "List";
+}
+<div class="container mt-4">
+    <h3>@ViewData["Title"]</h3>
+    <table class="table table-bordered table-striped" id="invoiceTable">
+        <thead>
+            <tr>
+                <th>Invoice ID</th>
+                <th>Name</th>
+                <th>Grand Total</th>
+                <th>Paid</th>
+                <th>Due</th>
+                <th>Phone</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.InvoiceID</td>
+                    <td>@item.Name</td>
+                    <td>@item.grandTotal</td>
+                    <td>@item.Paid</td>
+                    <td>@item.Due</td>
+                    <td>@item.Phone</td>
+                    <td>
+                        <a class="btn btn-primary btn-sm Printbtn" href="/Invoice/RePrint/@item.Id" target="_blank">Print</a>
+                        @* <button class="btn btn-primary btn-sm Printbtn" data-id="@item.Id">Print</button> *@
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
