@@ -3,6 +3,8 @@
 <header>
     <link rel="stylesheet" href="~/css/Icon.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    
+   
     <style>
         span{
             color: red;
@@ -247,6 +249,8 @@
         </div>
     </div>
 </div>
+
+
 
 @*This Javascript part is responsible for Calculation, data handling, clearing the page,
 auto refference and other necessary logics*@
@@ -536,7 +540,8 @@ auto refference and other necessary logics*@
             return true;
         }
 
-       
+
+            
             // Handle Save Button Click
             $("#SaveButton").click(function (event) {
                 event.preventDefault();
@@ -545,6 +550,9 @@ auto refference and other necessary logics*@
                     return;
                 }
 
+                //Disable button
+                 $('#SaveButton').prop('disabled', true);
+
                 var invoiceData = getInvoiceData(false);
                 console.log("Invoice Data:", invoiceData);
                 $.ajax({
@@ -552,6 +560,8 @@ auto refference and other necessary logics*@
                     type: 'POST',
                     data: invoiceData,
                     success: function () {
+                       //Enable button
+                        $('#SaveButton').prop('disabled', false);
                         Swal.fire({
                             position: "top-end",
                             icon: "success",

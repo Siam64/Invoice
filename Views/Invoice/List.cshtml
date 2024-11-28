@@ -1,6 +1,12 @@
 ﻿@{
     ViewData["Title"] = "List";
+    
 }
+
+<header>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css">
+    
+</header>
 <div class="container mt-4">
     <center><h3>Invoices</h3></center>
     <table class="table table-bordered table-striped" id="invoiceTable">
@@ -27,7 +33,6 @@
                     <td>@item.Phone</td>
                     <td>
                         <a class="btn btn-primary btn-sm Printbtn" href="/Invoice/RePrint/@item.Id" target="_blank">Print</a>
-                        @* <button class="btn btn-primary btn-sm Printbtn" data-id="@item.Id">Print</button> *@
                     </td>
                 </tr>
             }
@@ -35,3 +40,10 @@
     </table>
 </div>
 
+<script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script>
+    let table = new DataTable('#invoiceTable');
+    new DataTable('#invoiceTable');
+    $('#invoiceTable').DataTable();
+</script>
