@@ -21,9 +21,9 @@
                 <tr>
                     <td>@item.InvoiceID</td>
                     <td>@item.Name</td>
-                    <td>@item.grandTotal</td>
-                    <td>@item.Paid</td>
-                    <td>@item.Due</td>
+                    <td>@item.grandTotal.ToString("N2", new System.Globalization.CultureInfo("en-IN"))</td>
+                    <td>@item.Paid.ToString("N2", new System.Globalization.CultureInfo("en-IN"))</td>
+                    <td>@item.Due.ToString("N2", new System.Globalization.CultureInfo("en-IN"))</td>
                     <td>@item.Phone</td>
                     <td>
                         <a class="btn btn-primary btn-sm Printbtn" href="/Invoice/RePrint/@item.Id" target="_blank">Print</a>

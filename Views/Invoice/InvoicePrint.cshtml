@@ -136,36 +136,37 @@
                             <p class="lead">Payment Method: <strong> @Model.PaymentMethod </strong></p>
                             
                             @{
-                                @switch (Model.PaymentMethod)
+                                switch (Model.PaymentMethod)
                                 {
-                                    case @Invoice.Helper.Payment.Bkash:
+                                    case Invoice.Helper.Payment.Bkash :
                                         <img src="~/img/mfs/bkash.png" />
                                         break;
 
-                                    case @Invoice.Helper.Payment.Nogod:
+                                    case Invoice.Helper.Payment.Nogod :
                                         <img src="~/img/mfs/nagad.png" />
                                         break;
 
-                                    case @Invoice.Helper.Payment.Rocket:
-                                        <img src="~/img/mfs/rocket.png" />
-                                        break;
+                                   
 
-                                    case @Invoice.Helper.Payment.Cash:
+                                    case Invoice.Helper.Payment.Cash :
                                         <img src="~/img/mfs/cash.png" />
                                         break;
 
-                                    case @Invoice.Helper.Payment.Bank:
+                                    case Invoice.Helper.Payment.Bank :
                                         <img src="~/img/mfs/Bank.png" />
                                         break;
 
-                                    case @Invoice.Helper.Payment.Card:
+                                    case Invoice.Helper.Payment.Card :
                                         <img src="~/img/mfs/card.png" />
                                         break;
-
+                                    case Invoice.Helper.Payment.Rocket :
+                                        <img src="~/img/mfs/rocket.png" />
+                                        break;
                                     default:
-                                        <img src="~/img/mfs/default.png" /> 
+                                        <img src="~/img/mfs/default.png" />
                                         break;
                                 }
+
 
                             }
                            
