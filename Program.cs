@@ -6,7 +6,7 @@ var connectionString = builder.Configuration.GetConnectionString("InvoiceContext
 
 builder.Services.AddDbContext<InvoiceContext>(options => options.UseSqlServer(connectionString));
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<InvoiceContext>();
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<InvoiceContext>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

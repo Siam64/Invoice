@@ -12,6 +12,7 @@ using System.Security.Claims;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Newtonsoft.Json;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Invoice.Controllers
 {
@@ -128,7 +129,7 @@ namespace Invoice.Controllers
                 //Getting userid
                 var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 Guid CrrUserGuid = GuidHelper.ToGuidOrDefault(userid);
-
+                model.PrintedBy = User.FindFirstValue(ClaimTypes.Name);
 
                 if(model.CustomerId <= 0)
                 {
@@ -152,7 +153,7 @@ namespace Invoice.Controllers
                 invoiceData.Due = model.Due;
                 invoiceData.Paid = model.Paid;
                 invoiceData.PaymentMethod = model.PaymentMethod;
-
+                
                 if (invoiceData != null)
                 {
                     bool isMatch = _context.InvoiceItems.Any(x => x.Id.ToString() == model.InvoiceID);
