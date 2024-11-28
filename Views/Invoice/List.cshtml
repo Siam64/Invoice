@@ -1,10 +1,13 @@
-﻿@{
+﻿@model Invoice.Services.Pagination<Invoice.View_Models.InvoiceVM>
+
+@{
     ViewData["Title"] = "List";
     
 }
 
 <header>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css">
+    <link href="~/css/pagination.css" rel="stylesheet" />
     
 </header>
 <div class="container mt-4">
@@ -22,17 +25,17 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model)
+            @foreach (var data in Model.Items)
             {
                 <tr>
-                    <td>@item.InvoiceID</td>
-                    <td>@item.Name</td>
-                    <td>@item.grandTotal.ToString("N2", new System.Globalization.CultureInfo("en-IN"))</td>
-                    <td>@item.Paid.ToString("N2", new System.Globalization.CultureInfo("en-IN"))</td>
-                    <td>@item.Due.ToString("N2", new System.Globalization.CultureInfo("en-IN"))</td>
-                    <td>@item.Phone</td>
+                    <td>@data.InvoiceID</td>
+                    <td>@data.Name</td>
+                    <td>@data.grandTotal.ToString("N2", new System.Globalization.CultureInfo("en-IN"))</td>
+                    <td>@data.Paid.ToString("N2", new System.Globalization.CultureInfo("en-IN"))</td>
+                    <td>@data.Due.ToString("N2", new System.Globalization.CultureInfo("en-IN"))</td>
+                    <td>@data.Phone</td>
                     <td>
-                        <a class="btn btn-primary btn-sm Printbtn" href="/Invoice/RePrint/@item.Id" target="_blank">Print</a>
+                        <a class="btn btn-primary btn-sm Printbtn" href="/Invoice/RePrint/@data.Id" target="_blank">Print</a>
                     </td>
                 </tr>
             }
@@ -40,10 +43,75 @@
     </table>
 </div>
 
-<script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-<script>
-    let table = new DataTable('#invoiceTable');
-    new DataTable('#invoiceTable');
-    $('#invoiceTable').DataTable();
-</script>
+<div id="wrapper">
+    <ul id="pagination">
+        @if (Model.HasPreviousPage)
+        {
+            <li>
+                <button onclick="location.href='@Url.Action("List", "Invoice", new { pageNumber = Model.PageIndex - 1 })'">«</button>
+            </li>
+
+        }
+        else
+        {
+            <li><button class="disabled" disabled>«</button></li>
+        }
+
+        @for (var i = 1; i <= Model.TotalPages; i++)
+        {
+            <li>
+                <button class="@(Model.PageIndex == i ? "active" : "")"
+                        onclick="location.href='@Url.Action("List", "Invoice", new { pageNumber = i })'">
+                    @i
+                </button>
+            </li>
+        }
+
+        @if (Model.HasNextPage)
+        {
+            <li>
+                <button onclick="location.href='@Url.Action("List", "Invoice", new { pageNumber = Model.PageIndex + 1 })'">»</button>
+            </li>
+        }
+        else
+        {
+            <li><button class="disabled" disabled>»</button></li>
+        }
+    </ul>
+</div>
+
+
+<script src="~/js/jquery-3.6.0.min.js"></script>
+@* <script>
+    // function loadPage(pageNumber) {
+    //        $.ajax({
+    //            url: '@Url.Action("LoadPage", "Invoice")',
+    //            data: { pageNumber: pageNumber },
+    //            success: function (result) {
+    //                $('#invoiceTable').html(result);
+
+    //                // Update the active button
+    //                updateActiveButton(pageNumber);
+    //            },
+    //            error: function () {
+    //                alert('Error loading data.');
+    //            }
+    //        });
+    //    }
+
+    //    // Function to update the active button
+    //    function updateActiveButton(pageNumber) {
+    //        // Remove 'active' class from all buttons
+    //        $('#pagination button').removeClass('active');
+
+    //        // Add 'active' class to the button for the current page
+    //        $('#pagination button').each(function () {
+    //            if ($(this).text() == pageNumber) {
+    //                $(this).addClass('active');
+    //            }
+    //        });
+    //    }
+    //    $(document).ready(function () {
+    //        loadPage(1);
+    //    });
+</script> *@

@@ -13,6 +13,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Invoice.Services;
 
 namespace Invoice.Controllers
 {
@@ -33,6 +34,50 @@ namespace Invoice.Controllers
         {
             return View();
         }
+
+        [HttpGet("List")]
+        public async Task<IActionResult> List(int? pageNumber)
+        {
+            int pageSize = 10;
+            var query = from invoice in _context.Invoice
+                        join customer in _context.Customer
+                        on invoice.Customer_Id equals customer.Id
+                        select new InvoiceVM
+                        {
+                            Id = invoice.Id,
+                            InvoiceID = invoice.Invoice_ID,
+                            grandTotal = invoice.grandTotal,
+                            Paid = invoice.Paid,
+                            Due = invoice.Due,
+                            Name = customer.Name,
+                            Phone = customer.Phone
+                        };
+
+            var paginatedDataList = await Pagination<InvoiceVM>.CreateAsync(query, pageNumber ?? 1, pageSize);
+            return View(paginatedDataList);
+        }
+
+        //[HttpGet("LoadPage")]
+        //public async Task<IActionResult> LoadPage(int? pageNumber)
+        //{
+        //    int pageSize = 10;
+        //    var query = from invoice in _context.Invoice
+        //                join customer in _context.Customer
+        //                on invoice.Customer_Id equals customer.Id
+        //                select new InvoiceVM
+        //                {
+        //                    Id = invoice.Id,
+        //                    InvoiceID = invoice.Invoice_ID,
+        //                    grandTotal = invoice.grandTotal,
+        //                    Paid = invoice.Paid,
+        //                    Due = invoice.Due,
+        //                    Name = customer.Name,
+        //                    Phone = customer.Phone
+        //                };
+
+        //    var paginatedDataList = await Pagination<InvoiceVM>.CreateAsync(query, pageNumber ?? 1, pageSize);
+        //    return Partial();
+        //}
 
 
         [HttpGet]
