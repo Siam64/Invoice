@@ -10,11 +10,21 @@
     <link href="~/css/pagination.css" rel="stylesheet" />
     
 </header>
+
+
+
 <div class="container mt-4">
     <center><h3>Invoices</h3></center>
+    <div style="text-align: right; padding: 20px;">
+        <input type="text" name="query" placeholder="Enter Name or Invoice Id">
+        <button type="submit">Search</button>
+    </div>
+
+
     <table class="table table-bordered table-striped" id="invoiceTable">
         <thead>
             <tr>
+                <th>Serial</th>
                 <th>Invoice ID</th>
                 <th>Name</th>
                 <th>Grand Total</th>
@@ -28,6 +38,7 @@
             @foreach (var data in Model.Items)
             {
                 <tr>
+                    <td>@data.Id</td>
                     <td>@data.InvoiceID</td>
                     <td>@data.Name</td>
                     <td>@data.grandTotal.ToString("N2", new System.Globalization.CultureInfo("en-IN"))</td>

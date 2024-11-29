@@ -38,7 +38,7 @@ namespace Invoice.Controllers
         [HttpGet("List")]
         public async Task<IActionResult> List(int? pageNumber)
         {
-            int pageSize = 10;
+            int pageSize = 8;
             var query = from invoice in _context.Invoice
                         join customer in _context.Customer
                         on invoice.Customer_Id equals customer.Id
@@ -316,7 +316,6 @@ namespace Invoice.Controllers
                         orderby invoice.CreateAt descending
                         select new InvoiceVM
                         {
-                            
                             Id = invoice.Id,
                             InvoiceID = invoice.Invoice_ID,
                             grandTotal = invoice.grandTotal,
