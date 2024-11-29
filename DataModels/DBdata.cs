@@ -33,6 +33,7 @@
         public string PaymentMethod { get; set; }
         public double Due { get; set; }
         public double Paid { get; set; }
+        public double Total_Discount { get; set; }
         public Guid CreateBy { get; set; }
         public DateTime CreateAt { get; set; }
         

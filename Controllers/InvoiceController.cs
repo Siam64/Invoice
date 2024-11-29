@@ -42,6 +42,7 @@ namespace Invoice.Controllers
             var query = from invoice in _context.Invoice
                         join customer in _context.Customer
                         on invoice.Customer_Id equals customer.Id
+                        orderby invoice.CreateAt descending // Add ordering here
                         select new InvoiceVM
                         {
                             Id = invoice.Id,
@@ -198,6 +199,7 @@ namespace Invoice.Controllers
                 invoiceData.Due = model.Due;
                 invoiceData.Paid = model.Paid;
                 invoiceData.PaymentMethod = model.PaymentMethod;
+                invoiceData.Total_Discount = model.Total_Discount;
                 
                 if (invoiceData != null)
                 {
@@ -283,6 +285,8 @@ namespace Invoice.Controllers
             model.CreateAt = InvoiceData.CreateAt;
             model.CreateBy = InvoiceData.CreateBy;
             model.PrintedBy = PrintedBy;
+            model.Total_Discount = InvoiceData.Total_Discount;
+           
 
             model.Name = Customer.Name;
             model.Phone = Customer.Phone;
@@ -307,18 +311,20 @@ namespace Invoice.Controllers
         public IActionResult List()
         {
             var data = (from invoice in _context.Invoice
-                                     join customer in _context.Customer
-                                     on invoice.Customer_Id equals customer.Id
-                                    select new InvoiceVM
-                                    {
-                                         Id = invoice.Id,
-                                         InvoiceID = invoice.Invoice_ID,
-                                         grandTotal = invoice.grandTotal,
-                                         Paid = invoice.Paid,
-                                         Due = invoice.Due,
-                                         Name = customer.Name,
-                                         Phone = customer.Phone
-                                     }).ToList();
+                        join customer in _context.Customer
+                        on invoice.Customer_Id equals customer.Id
+                        orderby invoice.CreateAt descending
+                        select new InvoiceVM
+                        {
+                            
+                            Id = invoice.Id,
+                            InvoiceID = invoice.Invoice_ID,
+                            grandTotal = invoice.grandTotal,
+                            Paid = invoice.Paid,
+                            Due = invoice.Due,
+                            Name = customer.Name,
+                            Phone = customer.Phone,
+                        }).ToList();
             return View(data);
         }
     }

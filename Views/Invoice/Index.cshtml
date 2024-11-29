@@ -325,6 +325,7 @@ auto refference and other necessary logics*@
             updateOrderSummary();
         }
 
+        //function to calculate discout in both ammount and %
         function calculateDiscount(subtotal, discountValue, discountType) {
             if (discountType === '%') {
                 return (subtotal * discountValue) / 100;
