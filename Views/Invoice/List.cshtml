@@ -12,8 +12,84 @@
 </header>
 
 
-
 <div class="container mt-4">
+    <center><h3>Invoices</h3></center>
+    <div style="text-align: right; padding: 20px;">
+        <form method="get" action="@Url.Action("List", "Invoice")" class="d-flex justify-content-end">
+            <input type="text" name="searchQuery" value="@ViewBag.SearchQuery" placeholder="Name, Invoice ID, Phone" class="form-control w-auto me-2">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+    <table class="table table-bordered table-striped" id="invoiceTable">
+        <thead>
+            <tr>
+                <th>Serial</th>
+                <th>Invoice ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Grand Total</th>
+                <th>Paid</th>
+                <th>Due</th>
+                
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var data in Model.Items)
+            {
+                <tr>
+                    <td>@data.Id</td>
+                    <td>@data.InvoiceID</td>
+                    <td>@data.Name</td>
+                    <td>@data.Phone</td>
+                    <td>@data.grandTotal.ToString("N2", new System.Globalization.CultureInfo("en-IN"))</td>
+                    <td>@data.Paid.ToString("N2", new System.Globalization.CultureInfo("en-IN"))</td>
+                    <td>@data.Due.ToString("N2", new System.Globalization.CultureInfo("en-IN"))</td>
+                    
+                    <td>
+                        <a class="btn btn-primary btn-sm Printbtn" href="/Invoice/RePrint/@data.Id" target="_blank">Print</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div id="wrapper">
+    <ul id="pagination">
+        @if (Model.HasPreviousPage)
+        {
+            <li>
+                <button onclick="location.href='@Url.Action("List", "Invoice", new { pageNumber = Model.PageIndex - 1, searchQuery = ViewBag.SearchQuery })'">«</button>
+            </li>
+        }
+        else
+        {
+            <li><button class="disabled" disabled>«</button></li>
+        }
+        @for (var i = 1; i <= Model.TotalPages; i++)
+        {
+            <li>
+                <button class="@(Model.PageIndex == i ? "active" : "")"
+                        onclick="location.href='@Url.Action("List", "Invoice", new { pageNumber = i, searchQuery = ViewBag.SearchQuery })'">
+                    @i
+                </button>
+            </li>
+        }
+        @if (Model.HasNextPage)
+        {
+            <li>
+                <button onclick="location.href='@Url.Action("List", "Invoice", new { pageNumber = Model.PageIndex + 1, searchQuery = ViewBag.SearchQuery })'">»</button>
+            </li>
+        }
+        else
+        {
+            <li><button class="disabled" disabled>»</button></li>
+        }
+    </ul>
+</div>
+
+
+@* <div class="container mt-4">
     <center><h3>Invoices</h3></center>
     <div style="text-align: right; padding: 20px;">
         <input type="text" name="query" placeholder="Enter Name or Invoice Id">
@@ -52,9 +128,9 @@
             }
         </tbody>
     </table>
-</div>
+</div> *@
 
-<div id="wrapper">
+@* <div id="wrapper">
     <ul id="pagination">
         @if (Model.HasPreviousPage)
         {
@@ -89,7 +165,7 @@
             <li><button class="disabled" disabled>»</button></li>
         }
     </ul>
-</div>
+</div> *@
 
 
 <script src="~/js/jquery-3.6.0.min.js"></script>

@@ -36,13 +36,13 @@ namespace Invoice.Controllers
         }
 
         [HttpGet("List")]
-        public async Task<IActionResult> List(int? pageNumber)
+        public async Task<IActionResult> List(int? pageNumber, string searchQuery)
         {
             int pageSize = 8;
             var query = from invoice in _context.Invoice
                         join customer in _context.Customer
                         on invoice.Customer_Id equals customer.Id
-                        orderby invoice.CreateAt descending // Add ordering here
+                        orderby invoice.CreateAt descending
                         select new InvoiceVM
                         {
                             Id = invoice.Id,
@@ -54,6 +54,17 @@ namespace Invoice.Controllers
                             Phone = customer.Phone
                         };
 
+            // Match the search string
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                query = query.Where(x =>
+                    x.InvoiceID.Contains(searchQuery) ||
+                    x.Name.Contains(searchQuery) ||
+                    x.Phone.Contains(searchQuery)
+                );
+            }
+
+            ViewBag.SearchQuery = searchQuery; 
             var paginatedDataList = await Pagination<InvoiceVM>.CreateAsync(query, pageNumber ?? 1, pageSize);
             return View(paginatedDataList);
         }
