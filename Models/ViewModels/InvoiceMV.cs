@@ -35,6 +35,9 @@
         public double Price { get; set; }
         public List<InvoiceItemVM> InvoiceItems { get; set; }
 
+        public string HeaderImageBase64 { get; set; }
+        public string FooterImageBase64 { get; set; }
+        public string PaymentMethodImageBase64 { get; set; }
 
         public bool IsPrint { get; set; }
         public Guid CreateBy { get; set; }

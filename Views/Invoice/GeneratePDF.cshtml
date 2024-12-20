@@ -1,0 +1,325 @@
+﻿@model Invoice.View_Models.InvoiceVM
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+
+@{
+    ViewData["Title"] = "Invoice";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Invoice Print</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="~/css/invoice.min.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: white;
+            font-size: 12pt;
+            position: relative;
+        }
+
+        .wrapper {
+            position: relative;
+            min-height: calc(297mm - 80mm);
+            padding: 20mm 15mm;
+            margin-top: 40mm;
+            margin-bottom: 40mm;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            width: 210mm;
+            height: 40mm;
+            z-index: 1000;
+            background: white;
+        }
+
+            header img {
+                width: 100%;
+                height: auto;
+                max-height: 40mm;
+                object-fit: contain;
+            }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 210mm;
+            height: 40mm;
+            z-index: 1000;
+            background: white;
+        }
+
+            footer img {
+                width: 100%;
+                height: auto;
+                max-height: 40mm;
+                object-fit: contain;
+            }
+
+        .invoice {
+            width: 100%;
+            background: white;
+        }
+
+        .invoice-info {
+            margin-bottom: 5mm;
+            page-break-inside: avoid;
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 5mm;
+            border-collapse: collapse;
+        }
+
+            .table, .table th, .table td {
+                border-top: 2px solid #000;
+                border-bottom: 2px solid #000;
+                padding: 8pt;
+                text-align: left;
+            }
+
+                .table th {
+                    font-weight: bold;
+                }
+
+        .text-end {
+            text-align: right;
+        }
+
+        .signature-section {
+            position: relative;
+            margin-top: 30mm;
+            page-break-inside: avoid;
+            clear: both;
+        }
+
+        .signature-line {
+            height: 2px;
+            background-color: #000;
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        .payment-method img {
+            max-height: 50mm;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .grand-total {
+            page-break-inside: avoid;
+            margin-top: 5mm;
+        }
+
+        .address {
+            margin-bottom: 3mm;
+        }
+
+        .page-header {
+            margin-bottom: 5mm;
+        }
+
+        .section-break {
+            margin: 5mm 0;
+            clear: both;
+        }
+
+        /* Bootstrap grid system adjustments */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: -15px;
+            margin-left: -15px;
+        }
+
+        .col-12, .col-sm-4, .col-6 {
+            position: relative;
+            width: 100%;
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+
+        .col-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+
+        .col-sm-4 {
+            flex: 0 0 33.333333%;
+            max-width: 33.333333%;
+        }
+
+        .float-right {
+            float: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <img src="~/img/Header.png" alt="Header Image" />
+    </header>
+
+    <div class="wrapper">
+        <section class="invoice">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="page-header">
+                        <i class="fas fa-globe"></i>
+                    </h2>
+                </div>
+            </div>
+
+            <div class="row invoice-info">
+                <div class="col-sm-4">
+                    From
+                    <address class="address">
+                        @Invoice.Helper.CompanyAddress.Company<br />
+                        @Invoice.Helper.CompanyAddress.Address<br>
+                        @Invoice.Helper.CompanyAddress.Phone<br>
+                        @Invoice.Helper.CompanyAddress.Email
+                    </address>
+                </div>
+                <div class="col-sm-4">
+                    To
+                    <address class="address">
+                        Name: @Model.Name<br>
+                        Address: @Model.Address<br>
+                        Phone: @Model.Phone<br />
+                    </address>
+                </div>
+                <div class="col-sm-4">
+                    <b>Invoice# @Model.InvoiceID</b><br>
+                    <b>Date: @Model.Date.ToString("dd-MM-yyyy")</b><br />
+                    Printed By: @Model.PrintedBy
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="col-5">Description</th>
+                                <th class="col-1 text-end">Qty</th>
+                                <th class="col-2 text-end">Unit Price</th>
+                                <th class="col-2 text-end">Discount</th>
+                                <th class="col-2 text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.InvoiceItems)
+                            {
+                                <tr>
+                                    <td class="col-5">@item.Description</td>
+                                    <td class="col-1 text-end">@item.Quantity</td>
+                                    <td class="col-2 text-end">@item.Price.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @Invoice.Helper.DiscountType.Currency</td>
+                                    <td class="col-2 text-end">@item.ItemDiscount.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @item.discountType</td>
+                                    <td class="col-2 text-end">@item.TotalPrice.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @Invoice.Helper.DiscountType.Currency</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <div class="section-break">
+                        Total Amount In Word: <strong>@Invoice.Helper.NumberToWords.ConvertToWords(Model.grandTotal) @Invoice.Helper.DiscountType.Only</strong>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 payment-method">
+                            <p class="lead">Payment Method: <strong> @Model.PaymentMethod </strong></p>
+
+                            @switch (Model.PaymentMethod)
+                            {
+                                case Invoice.Helper.Payment.Bkash:
+                                    <img src="~/img/mfs/bkash.png" alt="Bkash" />
+                                    break;
+                                case Invoice.Helper.Payment.Nogod:
+                                    <img src="~/img/mfs/nagad.png" alt="Nagad" />
+                                    break;
+                                case Invoice.Helper.Payment.Cash:
+                                    <img src="~/img/mfs/cash.png" alt="Cash" />
+                                    break;
+                                case Invoice.Helper.Payment.Bank:
+                                    <img src="~/img/mfs/Bank.png" alt="Bank" />
+                                    break;
+                                case Invoice.Helper.Payment.Card:
+                                    <img src="~/img/mfs/card.png" alt="Card" />
+                                    break;
+                                case Invoice.Helper.Payment.Rocket:
+                                    <img src="~/img/mfs/rocket.png" alt="Rocket" />
+                                    break;
+                                default:
+                                    <img src="~/img/mfs/default.png" alt="Default" />
+                                    break;
+                            }
+
+                            <p class="text-muted well well-sm shadow-none" style="margin-top: 10px;">
+                                Thank you for doing business with us.
+                            </p>
+                        </div>
+
+                        <div class="col-6 grand-total">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th>Total Amount:</th>
+                                        <td class="text-end">@Model.grandTotal.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @Invoice.Helper.DiscountType.Currency</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Total Discount:</th>
+                                        <td class="text-end">@Model.Total_Discount.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @Invoice.Helper.DiscountType.Currency</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Total Paid:</th>
+                                        <td class="text-end">@Model.Paid.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @Invoice.Helper.DiscountType.Currency</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Due Amount:</th>
+                                        <td class="text-end">@Model.Due.ToString("N2", new System.Globalization.CultureInfo("en-IN")) @Invoice.Helper.DiscountType.Currency</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="signature-section col-3 float-right text-center">
+            <div class="signature-line"></div>
+            <div>Signature</div>
+        </div>
+    </div>
+
+    <footer>
+        <img src="~/img/Footer.png" alt="Footer Image" />
+    </footer>
+
+</body>
+</html>

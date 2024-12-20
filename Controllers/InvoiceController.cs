@@ -14,6 +14,11 @@ using Newtonsoft.Json;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Invoice.Services;
+using iText.StyledXmlParser.Jsoup.Parser;
+using iText.Html2pdf;
+using iText.Kernel.Pdf;
+using iText.IO.Image;
+using System.IO;
 
 namespace Invoice.Controllers
 {
@@ -21,9 +26,11 @@ namespace Invoice.Controllers
     public class InvoiceController : Controller
     {
         private readonly InvoiceContext _context;
-        public InvoiceController(InvoiceContext context)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public InvoiceController(InvoiceContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
        
 
@@ -319,6 +326,65 @@ namespace Invoice.Controllers
         }
 
 
+        public async Task<IActionResult> GeneratePDF(int id)
+        {
+            if (id < 0)
+            {
+                return NotFound();
+            }
+
+            // Your existing database queries
+            var InvoiceData = _context.Invoice.Where(x => x.Id == id).FirstOrDefault();
+            var InvoiceItems = _context.InvoiceItems.Where(x => x.Invoice_ID == InvoiceData.Invoice_ID).ToList();
+            var Customer = _context.Customer.Where(x => x.Id == InvoiceData.Customer_Id).FirstOrDefault();
+            var user = _context.Users.FirstOrDefault(x => x.Id == InvoiceData.PrintedBy.ToString());
+            string PrintedBy = user?.UserName ?? "Unknown";
+
+            // Create and populate the view model
+            InvoiceVM model = new InvoiceVM
+            {
+                InvoiceID = InvoiceData.Invoice_ID,
+                CustomerId = InvoiceData.Customer_Id,
+                Date = InvoiceData.Date,
+                ManualDiscount = InvoiceData.ManualDiscount,
+                grandTotal = InvoiceData.grandTotal,
+                Due = InvoiceData.Due,
+                Paid = InvoiceData.Paid,
+                PaymentMethod = InvoiceData.PaymentMethod,
+                CreateAt = InvoiceData.CreateAt,
+                CreateBy = InvoiceData.CreateBy,
+                PrintedBy = PrintedBy,
+                Total_Discount = InvoiceData.Total_Discount,
+                Name = Customer.Name,
+                Phone = Customer.Phone,
+                Address = Customer.Address,
+                InvoiceItems = InvoiceItems.Select(item => new InvoiceItemVM
+                {
+                    Description = item.Description,
+                    Price = item.Price,
+                    Quantity = item.Quantity,
+                    ItemDiscount = item.ItemDiscount,
+                    discountType = item.discountType,
+                    TotalPrice = item.TotalPrice
+                }).ToList()
+            };
+
+
+            // Generate PDF
+            string htmlContent = await ViewRenderer.RenderViewToStringAsync(this, "GeneratePDF", model);
+
+            var memoryStream = new MemoryStream();
+            ConverterProperties converterProperties = new ConverterProperties();
+
+            // Set base URI for any relative paths
+            converterProperties.SetBaseUri(_webHostEnvironment.WebRootPath);
+
+            HtmlConverter.ConvertToPdf(htmlContent, memoryStream, converterProperties);
+
+            return File(memoryStream.ToArray(), "application/pdf", $"Invoice_ID-{model.InvoiceID}.pdf");
+        }
+
+
         public IActionResult List()
         {
             var data = (from invoice in _context.Invoice
@@ -337,6 +403,9 @@ namespace Invoice.Controllers
                         }).ToList();
             return View(data);
         }
+
+
+
     }
 }
 
